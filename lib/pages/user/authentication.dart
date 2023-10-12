@@ -1,8 +1,9 @@
-import 'package:art_marketplace/pages/user/home_page.dart';
 import 'package:art_marketplace/pages/user/user_login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:art_marketplace/widgets/user/bottom_navigation_bar.dart'
+as user_bottom_navigation_bar;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure that Flutter is initialized
@@ -36,24 +37,11 @@ class _AuthPageState extends State<AuthPage> {
               return const UserLogin();
             } else {
               // User is logged in, navigate to home page
-              return const HomePage();
+              return const user_bottom_navigation_bar.BottomNavigationBar(pageNum: 0);
             }
           }
 
           return const Center(child: CircularProgressIndicator());
-          //
-          // if(snapshot.hasData){
-          //   return const HomePage();
-          // }
-          // else if(snapshot.hasError){
-          //   return const Center(child: Text('Something Went Wrong :('),);
-          // }
-          // else if(snapshot.connectionState == ConnectionState.waiting){
-          //   return const Center(child: CircularProgressIndicator(),);
-          // }
-          // else{
-          //   return const UserLogin();
-          // }
         },
       ),
     );
