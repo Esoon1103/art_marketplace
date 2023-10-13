@@ -45,6 +45,8 @@ class _UserRegisterState extends State<UserRegister> {
           password: passwordController.text,
         );
 
+        await FirebaseAuth.instance.currentUser!.updateDisplayName(usernameController.text);
+
         FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text);
 
         await FirebaseFirestore.instance.collection('Users').doc(FirebaseAuth.instance.currentUser!.uid).set({
@@ -53,6 +55,7 @@ class _UserRegisterState extends State<UserRegister> {
           'Username' : usernameController.text,
           'LoginMethod' : 'Email',
           'UID' : FirebaseAuth.instance.currentUser!.uid,
+          'Seller' : 'false',
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const UserLogin()));

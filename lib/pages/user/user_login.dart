@@ -1,8 +1,9 @@
-import 'package:art_marketplace/pages/user/home_page.dart';
 import 'package:art_marketplace/pages/user/user_forgot_password.dart';
 import 'package:art_marketplace/pages/user/user_register.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'authentication.dart';
 
 class UserLogin extends StatefulWidget {
   const UserLogin({super.key});
@@ -24,7 +25,7 @@ class _UserLoginState extends State<UserLogin> {
         password: passwordController.text,
       );
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomePage()));
+          context, MaterialPageRoute(builder: (context) => const AuthPage()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         showDialog(
