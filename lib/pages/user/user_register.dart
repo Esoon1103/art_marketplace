@@ -53,7 +53,6 @@ class _UserRegisterState extends State<UserRegister> {
           'Email' : emailController.text,
           'Phone' : phoneNumberController.text,
           'Username' : usernameController.text,
-          'LoginMethod' : 'Email',
           'UID' : FirebaseAuth.instance.currentUser!.uid,
           'Seller' : 'false',
         });

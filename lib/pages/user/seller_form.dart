@@ -31,7 +31,6 @@ class _SellerFormState extends State<SellerForm> {
   submitApplicationForm(List<String> urls) async {
     await FirebaseFirestore.instance.collection("SellerApplicationForm").doc(user?.uid.toString()).set({
       "UID" : user?.uid.toString(),
-      "Username" : user?.displayName.toString(),
       "fileURL" : urls,
       "BusinessDesc" : businessOverviewController.text.toString(),
       "Approval" : "Waiting for review"
