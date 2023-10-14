@@ -26,6 +26,7 @@ dependencies:
   dotted_border: ^2.1.0
   iconsax: ^0.0.8
   path: ^1.8.2
+  url_launcher: ^6.1.11
 
 dev_dependencies:
   flutter_test:
