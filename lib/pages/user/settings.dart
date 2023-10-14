@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -321,6 +322,34 @@ class _SettingsState extends State<Settings> {
     });
   }
 
+  sendMail() async {
+    String? uid = user?.uid.toString();
+
+    String? encodeQueryParameters(Map<String, String> params) {
+      return params.entries
+          .map((MapEntry<String, String> e) =>
+      '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+    }
+
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'ngesoon123@gmail.com',
+      query: encodeQueryParameters(<String, String>{
+        'subject': "Contact Enquiry from Artsylane",
+        'body': "Dear artsylane administrator,  This is the message from "
+            "username: $displayName and UID: $uid. I am writing here to ",
+      }),
+    );
+
+    if(await canLaunchUrl(emailUri)){
+      launchUrl(emailUri);
+    }else{
+      throw Exception("Could not launch $emailUri");
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -395,6 +424,13 @@ class _SettingsState extends State<Settings> {
                     SettingsSection(
                       title: const Text('Gateway'),
                       tiles: <SettingsTile>[
+                        SettingsTile(
+                          leading: const Icon(Icons.help),
+                          title: const Text('Contact Us'),
+                          onPressed: (context) {
+                            sendMail();
+                          },
+                        ),
                         SettingsTile.navigation(
                           leading: const Icon(Icons.change_circle),
                           title: const Text('Seller Centre'),
@@ -406,10 +442,6 @@ class _SettingsState extends State<Settings> {
                                         const SellerCentre()));
                           },
                         ),
-                      ],
-                    ),
-                    SettingsSection(
-                      tiles: <SettingsTile>[
                         SettingsTile(
                           leading: const Icon(Icons.logout),
                           title: const Text('Sign Out'),
@@ -421,7 +453,7 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
               const SizedBox(
-                height: 90,
+                height: 65,
               ),
             ],
           ),
