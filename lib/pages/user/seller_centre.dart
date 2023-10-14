@@ -16,7 +16,7 @@ class _SellerCentreState extends State<SellerCentre> {
   bool isLoading = true;
 
   @override
-  initState(){
+  initState() {
     super.initState();
     checkSellerStatus();
   }
@@ -36,7 +36,6 @@ class _SellerCentreState extends State<SellerCentre> {
         });
       }
     });
-
   }
 
   @override
@@ -49,58 +48,58 @@ class _SellerCentreState extends State<SellerCentre> {
       body: Center(
         child: isLoading
             ? const CircularProgressIndicator(
-          strokeWidth: 4.0,
-        ) // Show a loading indicator while data is being fetched
+                strokeWidth: 4.0,
+              ) // Show a loading indicator while data is being fetched
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (approval == "Waiting for review" ||
-                    approval == null ||
-                    approval == "Rejected")
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        "Begin your Business Now!",
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SellerForm(),
+                      if (approval == "Waiting for review" ||
+                          approval == null ||
+                          approval == "Rejected")
+                        Column(
+                          children: [
+                            const Text(
+                              "Begin your Business Now!",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
                             ),
-                          );
-                        },
-                        child: const Text(
-                          "Apply Now!",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SellerForm(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Apply Now!",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          children: [
+                            const Text(
+                              "Manage product!",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        )
                     ],
-                  )
-                else
-                  Column(
-                    children: [
-                      const Text(
-                        "Manage product!",
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
-                  )
-              ],
-            ),
-          ],
-        ),
+                  ),
+                ],
+              ),
       ),
     );
   }
