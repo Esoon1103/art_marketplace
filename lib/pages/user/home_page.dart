@@ -37,6 +37,19 @@ class _HomePageState extends State<HomePage> {
   final User? user = FirebaseAuth.instance.currentUser;
   String? displayName = "";
 
+  Stream _getVintageProducts() {
+    if (user != null) {
+      Stream<QuerySnapshot<Object?>> snapshot = FirebaseFirestore.instance
+          .collection('Product')
+          .where("UID", isEqualTo: user?.uid.toString())
+          .snapshots();
+
+      return snapshot;
+    } else {
+      return const Stream.empty();
+    }
+  }
+
   getUsername() async {
     final DocumentSnapshot<Map<String, dynamic>> getUsername =
     await FirebaseFirestore.instance

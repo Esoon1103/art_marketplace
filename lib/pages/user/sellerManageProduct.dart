@@ -1,9 +1,11 @@
+import 'package:art_marketplace/model/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+
 class SellerManageProduct extends StatefulWidget {
   const SellerManageProduct({super.key});
 
@@ -19,30 +21,41 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   String productCategory = "Visual Arts";
   String productPrice = "";
   String productLocation = "";
-  String? imageFile;
-  String? imageFile3D;
   String urlDownload = "";
   String url3dDownload = "";
   PlatformFile? file3D, file;
-  UploadTask? task;
+  UploadTask? task3D, task;
   final TextEditingController productNameController = TextEditingController();
   final TextEditingController productDescController = TextEditingController();
   final TextEditingController productPriceController = TextEditingController();
-  final TextEditingController productLocationController = TextEditingController();
+  final TextEditingController productLocationController =
+      TextEditingController();
 
   @override
   dispose() {
-    super.dispose();
     productNameController.clear();
     productDescController.clear();
     productPriceController.clear();
     productLocationController.clear();
+    super.dispose();
   }
 
-  void selectImage() async {
-    FilePickerResult? result =
-    await FilePicker.platform.pickFiles(
-        allowMultiple: false,
+  Stream _getSellerProducts() {
+    if (user != null) {
+      Stream<QuerySnapshot<Object?>> snapshot = FirebaseFirestore.instance
+          .collection('Product')
+          .where("UID", isEqualTo: user?.uid.toString())
+          .snapshots();
+
+      return snapshot;
+    } else {
+      return const Stream.empty();
+    }
+  }
+
+  selectImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
       type: FileType.custom,
       allowedExtensions: ['png', 'jpg', 'jpeg'],
     );
@@ -51,24 +64,22 @@ class _SellerManageProductState extends State<SellerManageProduct> {
       setState(() {
         file = result.files.single;
       });
-    }else{
+    } else {
       return;
     }
   }
 
-  void select3DImage() async {
-    FilePickerResult? result =
-    await FilePicker.platform.pickFiles(
+  select3DImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
-      type: FileType.custom,
-      allowedExtensions: ['glb', 'gltf', 'stl', 'obj'],
+      type: FileType.any,
     );
 
     if (result != null) {
       setState(() {
         file3D = result.files.single;
       });
-    }else{
+    } else {
       return;
     }
   }
@@ -92,35 +103,38 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     });
 
     urlDownload = await snapshot.ref.getDownloadURL();
-
-    //await createNewProduct();
   }
 
   Future upload3DImage() async {
+    if (file3D == null) {
+      print('Error: File is null.');
+      // Handle the error or return early.
+      return;
+    }
+
     final path = 'sellerProduct3DModel/${file3D!.name}';
     final File fileObject = File(file3D!.path!);
 
     final ref = FirebaseStorage.instance.ref().child(path);
-    task = ref.putFile(fileObject);
+    task3D = ref.putFile(fileObject);
 
     // Wait for the upload to complete
-    final snapshot = await task!.whenComplete(() {
+    final snapshot = await task3D!.whenComplete(() {
       print('Upload complete');
     });
 
     url3dDownload = await snapshot.ref.getDownloadURL();
-    //await createNewProduct();
   }
 
   createNewProduct() async {
-    await FirebaseFirestore.instance.collection("Product").doc(user?.uid.toString()).set({
-      "UID" : user?.uid.toString(),
-      "Image" : urlDownload,
+    await FirebaseFirestore.instance.collection("Product").doc().set({
+      "UID": user?.uid.toString(),
+      "Image": urlDownload,
       "3D Image": url3dDownload,
-      "name": productNameController.text.toString(),
-      "desc" : productDescController.text.toString(),
-      "price" : productPriceController.text.toString(),
-      "location" : productLocationController.text.toString(),
+      "Name": productNameController.text.toString(),
+      "Desc": productDescController.text.toString(),
+      "Price": productPriceController.text.toString(),
+      "Location": productLocationController.text.toString(),
     });
   }
 
@@ -217,112 +231,120 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       });
                     },
                   ),
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width,
                     height: 50,
-                    child: Row(
-                        children: [
-                          const Text("Category",
-                            style: TextStyle(
-                              fontSize: 15,
-                            ),
-                          ),
-                          SizedBox(width: 40,),
-                          Expanded(
-                            child: Container(
-                              child: DropdownButtonFormField<String>(
-                                value: productCategory,
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    setState(() {
-                                      productCategory = newValue!;
-                                    });
-                                  }
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Product Price cannot be empty!';
-                                  }
-                                  return null;
-                                },
-                                items: <String>['Visual Arts', 'Vintage', 'Nature']
-                                    .map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(value),
-                                        SizedBox(width: 8),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
+                    child: Row(children: [
+                      const Text(
+                        "Category",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 40,
+                      ),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: productCategory,
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                productCategory = newValue;
+                              });
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Product Price cannot be empty!';
+                            }
+                            return null;
+                          },
+                          items: <String>['Visual Arts', 'Vintage', 'Nature']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(value),
+                                  const SizedBox(width: 8),
+                                ],
                               ),
-                            ),
-                          ),
-                        ]
-                    ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ]),
                   ),
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: Row(
-                        children: [
-                          const Text("Image      ",
-                            style: TextStyle(
-                              fontSize: 15,
+                    child: Row(children: [
+                      const Text(
+                        "Image      ",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: () {
+                            selectImage();
+                          },
+                          icon: const Icon(Icons.upload_outlined),
+                          label: file?.name == null
+                              ? const Text('Select')
+                              : Text(file!.name),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.blue,
+                            backgroundColor: Colors.grey[200],
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          SizedBox(width: 30,),
-                          Expanded(
-                            child: TextButton.icon(
-                              onPressed: () async {
-                                selectImage();
-                              },
-                              icon: Icon(Icons.upload_outlined), // Replace with your preferred upload icon
-                              label: Text('Select'),
-                              style: TextButton.styleFrom(
-                                primary: Colors.blue, // Text color
-                                backgroundColor: Colors.grey[200], // Background color
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ]
-                    ),
+                        ),
+                      ),
+                    ]),
                   ),
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: Row(
-                        children: [
-                          const Text("3D Image \n(Optional)",
-                            style: TextStyle(
-                              fontSize: 15,
+                    child: Row(children: [
+                      const Text(
+                        "3D Image \n(Optional)",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            select3DImage();
+                          },
+                          icon: const Icon(Icons.upload_outlined),
+                          label: file3D?.name == null
+                              ? const Text('Select')
+                              : Text(file3D!.name),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.blue,
+                            backgroundColor: Colors.grey[200],
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          SizedBox(width: 30,),
-                          Expanded(
-                            child: TextButton.icon(
-                              onPressed: () {
-                                select3DImage();
-                              },
-                              icon: Icon(Icons.upload_outlined), // Replace with your preferred upload icon
-                              label: Text('Select'),
-                              style: TextButton.styleFrom(
-                                primary: Colors.blue, // Text color
-                                backgroundColor: Colors.grey[200], // Background color
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ]
-                    ),
+                        ),
+                      ),
+                    ]),
                   ),
                 ],
               ),
@@ -335,36 +357,19 @@ class _SellerManageProductState extends State<SellerManageProduct> {
             ),
             TextButton(
               onPressed: () async {
+                print(urlDownload);
+                print(url3dDownload);
                 try {
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKey.currentState!.validate() || urlDownload == "") {
                     await uploadImage();
-                    //await upload3DImage();
+                    await upload3DImage();
                     await createNewProduct();
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Form Submitted')),
+                      const SnackBar(content: Text('New Product Added')),
                     );
                     Navigator.pop(context);
                   }
-                  // if (updateUsernameController.text == "") {
-                  //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  //       content: Text("Username cannot be empty!")));
-                  // } else {
-                  //   await FirebaseFirestore.instance
-                  //       .collection("Users")
-                  //       .doc(user?.uid.toString())
-                  //       .update({
-                  //     "Username": updateUsernameController.text.toString()
-                  //   });
-                  //
-                  //   await FirebaseAuth.instance.currentUser!.updateDisplayName(
-                  //       updateUsernameController.text.toString());
-                  //
-                  //   setState(() {
-                  //     displayName = updateUsernameController.text.toString();
-                  //   });
-                  //   Navigator.pop(context, 'ADD');
-                  // }
                 } catch (e) {
                   print('Error add new product: $e');
                 }
@@ -392,104 +397,133 @@ class _SellerManageProductState extends State<SellerManageProduct> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Card(
-                // Set the shape of the card using a rounded rectangle border with a 8 pixel radius
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                // Set the clip behavior of the card
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                // Define the child widgets of the card
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    // Display an image at the top of the card that fills the width of the card and has a height of 160 pixels
-                    Image.asset(
-                      'assets/images/artsylane_logo_full.png',
-                      height: 160,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                    // Add a container with padding that contains the card's title, text, and buttons
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          // Display the card's title using a font size of 24 and a dark grey color
-                          Text(
-                            "Vase 1998",
-                            style: TextStyle(
-                              fontSize: 19,
-                              color: Colors.grey[800],
+              StreamBuilder(
+                  stream: _getSellerProducts(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else if (!snapshot.hasData ||
+                        snapshot.data!.docs.isEmpty) {
+                      return const Text('No products available.');
+                    } else {
+                      //Initialize product list
+                      List<ProductModel> products = [
+                        for (var product in snapshot.data!.docs)
+                          ProductModel(
+                              name: product["Name"],
+                              description: product["Desc"],
+                              location: product["Location"],
+                              price: product["Price"],
+                              uid: product["UID"],
+                              image: product["Image"],
+                              image3D: product["3D Image"]),
+                      ];
+
+                      return ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: products.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          // Use the 'products' list to build your UI
+                          return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "Locate: Hin Bus Depot, George Town",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[700],
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Image.network(
+                                  products[index].image,
+                                  height: 160,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                                Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        products[index].name,
+                                        style: TextStyle(
+                                          fontSize: 19,
+                                          color: Colors.grey[800],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        products[index].location,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      Container(height: 10),
+                                      Text(
+                                        products[index].description,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      Row(
+                                        children: <Widget>[
+                                          Text(
+                                            "RM ${products[index].price}",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          TextButton(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  Colors.transparent,
+                                            ),
+                                            child: const Text(
+                                              "EDIT",
+                                              style:
+                                                  TextStyle(color: Colors.blue),
+                                            ),
+                                            onPressed: () {},
+                                          ),
+                                          TextButton(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  Colors.transparent,
+                                            ),
+                                            child: const Text(
+                                              "DELETE",
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
+                                            onPressed: () {},
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(height: 5),
+                              ],
                             ),
-                          ),
-                          // Add a space between the title and the text
-                          Container(height: 10),
-                          // Display the card's text using a font size of 15 and a light grey color
-                          Text(
-                            "Founded in 1998, was an item stored in our family. Historical item which never been used or sold ever.",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                          // Add a row with two buttons spaced apart and aligned to the right side of the card
-                          Row(
-                            children: <Widget>[
-                              const Text(
-                                "RM 199",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              // Add a spacer to push the buttons to the right side of the card
-                              const Spacer(),
-                              // Add a text button labeled "SHARE" with transparent foreground color and an accent color for the text
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.transparent,
-                                ),
-                                child: const Text(
-                                  "EDIT",
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                                onPressed: () {},
-                              ),
-                              // Add a text button labeled "EXPLORE" with transparent foreground color and an accent color for the text
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.transparent,
-                                ),
-                                child: const Text(
-                                  "DELETE",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                                onPressed: () {},
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Add a small space between the card and the next widget
-                    Container(height: 5),
-                  ],
-                ),
-              ),
+                          );
+                        },
+                      );
+                    }
+                  }),
+              SizedBox(height: 75,)
             ],
           ),
         ),
