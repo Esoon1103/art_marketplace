@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:art_marketplace/widgets/user/displayProfileDetails.dart';
+import 'package:art_marketplace/widgets/user/display_profile_details.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});

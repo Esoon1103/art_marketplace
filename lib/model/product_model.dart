@@ -6,6 +6,9 @@ class ProductModel{
   final String uid;
   final String image;
   final String image3D;
+  final String category;
+  final String inventory;
+  final String productID;
 
   ProductModel({
     required this.name,
@@ -15,5 +18,8 @@ class ProductModel{
     required this.uid,
     required this.image,
     required this.image3D,
+    required this.category,
+    required this.inventory,
+    required this.productID,
   });
 }

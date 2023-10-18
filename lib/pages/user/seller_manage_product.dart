@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:art_marketplace/model/product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -5,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+
+import 'package:flutter/services.dart';
 
 class SellerManageProduct extends StatefulWidget {
   const SellerManageProduct({super.key});
@@ -23,13 +26,17 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   String productLocation = "";
   String urlDownload = "";
   String url3dDownload = "";
+  String? imageLink, image3DLink;
   PlatformFile? file3D, file;
   UploadTask? task3D, task;
+  bool upload = false;
   final TextEditingController productNameController = TextEditingController();
   final TextEditingController productDescController = TextEditingController();
   final TextEditingController productPriceController = TextEditingController();
   final TextEditingController productLocationController =
       TextEditingController();
+  final TextEditingController inventoryController =
+      TextEditingController(text: "0");
 
   @override
   dispose() {
@@ -37,6 +44,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     productDescController.clear();
     productPriceController.clear();
     productLocationController.clear();
+    inventoryController.clear();
     super.dispose();
   }
 
@@ -63,6 +71,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     if (result != null) {
       setState(() {
         file = result.files.single;
+        upload = true;
       });
     } else {
       return;
@@ -78,6 +87,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     if (result != null) {
       setState(() {
         file3D = result.files.single;
+        upload = true;
       });
     } else {
       return;
@@ -87,7 +97,6 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   Future uploadImage() async {
     if (file == null) {
       print('Error: File is null.');
-      // Handle the error or return early.
       return;
     }
 
@@ -97,18 +106,22 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     final ref = FirebaseStorage.instance.ref().child(path);
     task = ref.putFile(fileObject);
 
-    // Wait for the upload to complete
     final snapshot = await task!.whenComplete(() {
       print('Upload complete');
     });
 
     urlDownload = await snapshot.ref.getDownloadURL();
+
+    File(file!.path!).delete();
+
+    setState(() {
+      file = null;
+    });
   }
 
   Future upload3DImage() async {
     if (file3D == null) {
       print('Error: File is null.');
-      // Handle the error or return early.
       return;
     }
 
@@ -124,10 +137,21 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     });
 
     url3dDownload = await snapshot.ref.getDownloadURL();
+
+    File(file3D!.path!).delete();
+
+    setState(() {
+      file3D = null;
+    });
   }
 
   createNewProduct() async {
-    await FirebaseFirestore.instance.collection("Product").doc().set({
+    DocumentReference newProductID =
+        FirebaseFirestore.instance.collection("Product").doc();
+
+    String productID = newProductID.id;
+
+    await FirebaseFirestore.instance.collection("Product").doc(productID).set({
       "UID": user?.uid.toString(),
       "Image": urlDownload,
       "3D Image": url3dDownload,
@@ -135,16 +159,105 @@ class _SellerManageProductState extends State<SellerManageProduct> {
       "Desc": productDescController.text.toString(),
       "Price": productPriceController.text.toString(),
       "Location": productLocationController.text.toString(),
+      "Inventory": inventoryController.text.toString(),
+      "Category": productCategory.toString(),
+      "ProductID": productID,
     });
   }
 
-  addProductDialog() async {
+  void _increment() {
+    if (inventoryController.text.isEmpty) {
+      inventoryController.text = '1';
+    } else {
+      int value = int.parse(inventoryController.text);
+      inventoryController.text = (value + 1).toString();
+    }
+  }
+
+  void _decrement() {
+    if (inventoryController.text.isEmpty) {
+      inventoryController.text = '0';
+    } else {
+      int value = int.parse(inventoryController.text);
+      if (value > 0) {
+        inventoryController.text = (value - 1).toString();
+      }
+    }
+  }
+
+  showDeleteProductDialog(ProductModel product) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Warning'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure to delete this product? \nProduct Name: ${product.name}'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              child: const Text('DELETE'),
+              onPressed: () async {
+                await deleteProduct(product.productID);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  deleteProduct(String productID) async {
+    await FirebaseFirestore.instance
+        .collection("Product")
+        .doc(productID)
+        .delete();
+  }
+
+  updateProduct(ProductModel product) async {
+    await FirebaseFirestore.instance
+        .collection("Product")
+        .doc(product.productID)
+        .update({
+      "Image": urlDownload,
+      "3D Image": url3dDownload,
+      "Name": productNameController.text.toString(),
+      "Desc": productDescController.text.toString(),
+      "Price": productPriceController.text.toString(),
+      "Location": productLocationController.text.toString(),
+      "Inventory": inventoryController.text.toString(),
+      "Category": productCategory.toString(),
+    });
+  }
+
+  showEditProductDialog(ProductModel product) {
+    productNameController.text = product.name;
+    productDescController.text = product.description;
+    productPriceController.text = product.price;
+    productLocationController.text = product.location;
+    inventoryController.text = product.inventory;
+    productCategory = product.category;
+    urlDownload = product.image;
+    url3dDownload = product.image3D;
+
+    print("Product Image: $urlDownload");
+    print("Product3D Image: $url3dDownload");
+
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => Form(
         key: _formKey,
         child: AlertDialog(
-          title: const Text('Add Product'),
+          title: const Text('Edit Product'),
           content: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
             return SingleChildScrollView(
@@ -160,7 +273,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                     },
                     controller: productNameController,
                     decoration: const InputDecoration(
-                      hintText: 'Name',
+                      labelText: "Name",
                       hintStyle: TextStyle(
                         color: Color(0xFF8391A1),
                       ),
@@ -180,7 +293,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                     },
                     controller: productDescController,
                     decoration: const InputDecoration(
-                      hintText: 'Description',
+                      labelText: "Description",
                       hintStyle: TextStyle(
                         color: Color(0xFF8391A1),
                       ),
@@ -192,6 +305,10 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                     },
                   ),
                   TextFormField(
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Product Price cannot be empty!';
@@ -200,7 +317,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                     },
                     controller: productPriceController,
                     decoration: const InputDecoration(
-                      hintText: 'Price (RM)',
+                      labelText: "Price (RM)",
                       hintStyle: TextStyle(
                         color: Color(0xFF8391A1),
                       ),
@@ -220,7 +337,8 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                     },
                     controller: productLocationController,
                     decoration: const InputDecoration(
-                      hintText: 'Location',
+                      labelText: 'Location',
+                      hintText: 'Hin Bus Depot, George Town',
                       hintStyle: TextStyle(
                         color: Color(0xFF8391A1),
                       ),
@@ -274,6 +392,55 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                               ),
                             );
                           }).toList(),
+                        ),
+                      ),
+                    ]),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 70,
+                    child: Row(children: [
+                      const Text(
+                        "Inventory",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 40,
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Inventory cannot be empty!';
+                            } else if (value == "0") {
+                              return "Inventory cannot be 0";
+                            }
+                            return null;
+                          },
+                          controller: inventoryController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: 'Inventory',
+                            suffixIcon: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.arrow_upward),
+                                  onPressed: _increment,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_downward),
+                                  onPressed: _decrement,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ]),
@@ -357,10 +524,325 @@ class _SellerManageProductState extends State<SellerManageProduct> {
             ),
             TextButton(
               onPressed: () async {
-                print(urlDownload);
-                print(url3dDownload);
                 try {
-                  if (_formKey.currentState!.validate() || urlDownload == "") {
+                  if (urlDownload == "") {
+                    Flushbar(
+                      backgroundColor: Colors.black,
+                      message: "Please upload the product image",
+                      duration: const Duration(seconds: 3),
+                    ).show(context);
+                    return;
+                  }
+
+                  if (_formKey.currentState!.validate()) {
+                    if (upload == true) {
+                      await uploadImage();
+                      await upload3DImage();
+                    }
+
+                    await updateProduct(product);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Product Updated')),
+                    );
+                    Navigator.pop(context);
+                  }
+                } catch (e) {
+                  print('Error update the product: $e');
+                }
+              },
+              child: const Text('UPDATE'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  addProductDialog() async {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => Form(
+        key: _formKey,
+        child: AlertDialog(
+          title: const Text('Add Product'),
+          content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Product name cannot be empty!';
+                      }
+                      return null;
+                    },
+                    controller: productNameController,
+                    decoration: const InputDecoration(
+                      labelText: "Name",
+                      hintStyle: TextStyle(
+                        color: Color(0xFF8391A1),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        productName = value;
+                      });
+                    },
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Product description cannot be empty!';
+                      }
+                      return null;
+                    },
+                    controller: productDescController,
+                    decoration: const InputDecoration(
+                      labelText: "Description",
+                      hintStyle: TextStyle(
+                        color: Color(0xFF8391A1),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        productDesc = value;
+                      });
+                    },
+                  ),
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Product Price cannot be empty!';
+                      }
+                      return null;
+                    },
+                    controller: productPriceController,
+                    decoration: const InputDecoration(
+                      labelText: "Price (RM)",
+                      hintStyle: TextStyle(
+                        color: Color(0xFF8391A1),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        productPrice = value;
+                      });
+                    },
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Location cannot be empty!';
+                      }
+                      return null;
+                    },
+                    controller: productLocationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Location',
+                      hintText: 'Hin Bus Depot, George Town',
+                      hintStyle: TextStyle(
+                        color: Color(0xFF8391A1),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        productLocation = value;
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 50,
+                    child: Row(children: [
+                      const Text(
+                        "Category",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 40,
+                      ),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: productCategory,
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                productCategory = newValue;
+                              });
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Product Price cannot be empty!';
+                            }
+                            return null;
+                          },
+                          items: <String>['Visual Arts', 'Vintage', 'Nature']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(value),
+                                  const SizedBox(width: 8),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ]),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 70,
+                    child: Row(children: [
+                      const Text(
+                        "Inventory",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 40,
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Inventory cannot be empty!';
+                            } else if (value == "0") {
+                              return "Inventory cannot be 0";
+                            }
+                            return null;
+                          },
+                          controller: inventoryController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: 'Inventory',
+                            suffixIcon: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.arrow_upward),
+                                  onPressed: _increment,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_downward),
+                                  onPressed: _decrement,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(children: [
+                      const Text(
+                        "Image      ",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: () {
+                            selectImage();
+                          },
+                          icon: const Icon(Icons.upload_outlined),
+                          label: file?.name == null
+                              ? const Text('Select')
+                              : Text(file!.name),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.blue,
+                            backgroundColor: Colors.grey[200],
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(children: [
+                      const Text(
+                        "3D Image \n(Optional)",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            select3DImage();
+                          },
+                          icon: const Icon(Icons.upload_outlined),
+                          label: file3D?.name == null
+                              ? const Text('Select')
+                              : Text(file3D!.name),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.blue,
+                            backgroundColor: Colors.grey[200],
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
+            );
+          }),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  if (file == null) {
+                    Flushbar(
+                      backgroundColor: Colors.black,
+                      message: "Please upload the product image",
+                      duration: const Duration(seconds: 3),
+                    ).show(context);
+                    return;
+                  }
+
+                  if (_formKey.currentState!.validate()) {
                     await uploadImage();
                     await upload3DImage();
                     await createNewProduct();
@@ -369,6 +851,12 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       const SnackBar(content: Text('New Product Added')),
                     );
                     Navigator.pop(context);
+
+                    productNameController.clear();
+                    productDescController.clear();
+                    productPriceController.clear();
+                    productLocationController.clear();
+                    inventoryController.clear();
                   }
                 } catch (e) {
                   print('Error add new product: $e');
@@ -421,7 +909,10 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                               price: product["Price"],
                               uid: product["UID"],
                               image: product["Image"],
-                              image3D: product["3D Image"]),
+                              image3D: product["3D Image"],
+                              category: product["Category"],
+                              inventory: product["Inventory"],
+                              productID: product["ProductID"]),
                       ];
 
                       return ListView.builder(
@@ -496,7 +987,10 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                                               style:
                                                   TextStyle(color: Colors.blue),
                                             ),
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              showEditProductDialog(
+                                                  products[index]);
+                                            },
                                           ),
                                           TextButton(
                                             style: TextButton.styleFrom(
@@ -508,7 +1002,10 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                                               style:
                                                   TextStyle(color: Colors.red),
                                             ),
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              showDeleteProductDialog(
+                                                  products[index]);
+                                            },
                                           ),
                                         ],
                                       ),
@@ -523,7 +1020,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       );
                     }
                   }),
-              SizedBox(height: 75,)
+              SizedBox(
+                height: 75,
+              )
             ],
           ),
         ),

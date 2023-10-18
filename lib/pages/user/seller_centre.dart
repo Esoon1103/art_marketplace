@@ -1,5 +1,5 @@
-import 'package:art_marketplace/pages/user/sellerManageOrder.dart';
-import 'package:art_marketplace/pages/user/sellerManageProduct.dart';
+import 'package:art_marketplace/pages/user/seller_manage_order.dart';
+import 'package:art_marketplace/pages/user/seller_manage_product.dart';
 import 'package:art_marketplace/pages/user/seller_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
