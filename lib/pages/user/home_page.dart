@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:art_marketplace/pages/user/product_view_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
+import '../../model/product_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,7 +16,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   List<String> images = [
     'https://images.unsplash.com/photo-1633177317976-3f9bc45e1d1d?ixid=MnwxMjA3fDB8MHxlZGl0b3JpYWwtZmVlZHwxMHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
     'https://images.unsplash.com/photo-1633113093730-47449a1a9c6e?ixid=MnwxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHwxMXx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
@@ -31,17 +33,20 @@ class _HomePageState extends State<HomePage> {
   ];
 
   //Use broadcast so that the stream can be listened multiple times
-  final StreamController<String> _vintageImagesController = StreamController<String>.broadcast();
-  final StreamController<String> _artImagesController = StreamController<String>.broadcast();
-  final StreamController<String> _natureImagesController = StreamController<String>.broadcast();
+  final StreamController<String> _vintageImagesController =
+      StreamController<String>.broadcast();
+  final StreamController<String> _artImagesController =
+      StreamController<String>.broadcast();
+  final StreamController<String> _natureImagesController =
+      StreamController<String>.broadcast();
   final User? user = FirebaseAuth.instance.currentUser;
   String? displayName = "";
 
-  Stream _getVintageProducts() {
+  Stream _getVisualArtsProducts() {
     if (user != null) {
       Stream<QuerySnapshot<Object?>> snapshot = FirebaseFirestore.instance
           .collection('Product')
-          .where("UID", isEqualTo: user?.uid.toString())
+          .where("Category", isEqualTo: "Visual Arts")
           .snapshots();
 
       return snapshot;
@@ -52,18 +57,16 @@ class _HomePageState extends State<HomePage> {
 
   getUsername() async {
     final DocumentSnapshot<Map<String, dynamic>> getUsername =
-    await FirebaseFirestore.instance
-        .collection("Users")
-        .doc(user?.uid.toString())
-        .get();
+        await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(user?.uid.toString())
+            .get();
     displayName = getUsername.data()?["Username"].toString();
   }
 
   updateDisplayName() async {
     await getUsername();
-    await FirebaseAuth
-        .instance.currentUser!
-        .updateDisplayName(displayName);
+    await FirebaseAuth.instance.currentUser!.updateDisplayName(displayName);
   }
 
   Stream<String> getImages() async* {
@@ -77,9 +80,11 @@ class _HomePageState extends State<HomePage> {
   Stream<String> getVintageImages() {
     return _vintageImagesController.stream;
   }
+
   Stream<String> getArtImages() {
     return _artImagesController.stream;
   }
+
   Stream<String> getNatureImages() {
     return _natureImagesController.stream;
   }
@@ -171,31 +176,66 @@ class _HomePageState extends State<HomePage> {
                     child: TabBarView(
                       children: [
                         StreamBuilder(
-                            stream: getArtImages(),
+                            stream: _getVisualArtsProducts(),
                             builder: (context, snapshot) {
-                              return MasonryGridView.builder(
-                                padding: const EdgeInsets.all(0.1),
-                                mainAxisSpacing: 1.0,
-                                crossAxisSpacing: 1.0,
-                                  gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.docs.isEmpty) {
+                                return const Text('No products available.');
+                              } else {
+                                List<ProductModel> products = [
+                                  for (var product in snapshot.data!.docs)
+                                    ProductModel(
+                                        name: product["Name"],
+                                        description: product["Desc"],
+                                        location: product["Location"],
+                                        price: product["Price"],
+                                        uid: product["UID"],
+                                        image: product["Image"],
+                                        image3D: product["3D Image"],
+                                        category: product["Category"],
+                                        inventory: product["Inventory"],
+                                        productID: product["ProductID"]),
+                                ];
+                                return MasonryGridView.builder(
+                                  padding: const EdgeInsets.all(0.1),
+                                  mainAxisSpacing: 1.0,
+                                  crossAxisSpacing: 1.0,
+                                  gridDelegate:
+                                      const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
                                   ),
-                                itemCount: images.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return FadeInUp(
-                                    delay: Duration(milliseconds: index * 50),
-                                    duration:
-                                    Duration(milliseconds: (index * 50) + 500),
-                                    child: Container(
-                                      color: Colors.black,
-                                      child: Image.network(
-                                        images[index],
-                                        fit: BoxFit.cover,
+                                  itemCount: products.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return FadeInUp(
+                                      delay: Duration(milliseconds: index * 50),
+                                      duration: Duration(
+                                          milliseconds: (index * 50) + 500),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                       ProductViewPage(product: products[index])));
+                                        },
+                                        child: Container(
+                                          color: Colors.black,
+                                          child: Image.network(
+                                            products[index].image,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              );
+                                    );
+                                  },
+                                );
+                              }
                             }),
                         StreamBuilder(
                             stream: getVintageImages(),
@@ -204,15 +244,16 @@ class _HomePageState extends State<HomePage> {
                                 padding: const EdgeInsets.all(0.1),
                                 mainAxisSpacing: 1.0,
                                 crossAxisSpacing: 1.0,
-                                gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                                gridDelegate:
+                                    const SliverSimpleGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                 ),
                                 itemCount: images.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   return FadeInUp(
                                     delay: Duration(milliseconds: index * 50),
-                                    duration:
-                                    Duration(milliseconds: (index * 50) + 800),
+                                    duration: Duration(
+                                        milliseconds: (index * 50) + 800),
                                     child: Container(
                                       color: Colors.black,
                                       child: Image.network(
