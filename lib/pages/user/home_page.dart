@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../model/product_model.dart';
 
@@ -47,6 +48,19 @@ class _HomePageState extends State<HomePage> {
       Stream<QuerySnapshot<Object?>> snapshot = FirebaseFirestore.instance
           .collection('Product')
           .where("Category", isEqualTo: "Visual Arts")
+          .snapshots();
+
+      return snapshot;
+    } else {
+      return const Stream.empty();
+    }
+  }
+
+  Stream _getVintageProducts() {
+    if (user != null) {
+      Stream<QuerySnapshot<Object?>> snapshot = FirebaseFirestore.instance
+          .collection('Product')
+          .where("Category", isEqualTo: "Vintage")
           .snapshots();
 
       return snapshot;
@@ -180,7 +194,14 @@ class _HomePageState extends State<HomePage> {
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return const CircularProgressIndicator();
+                                return const  SizedBox(
+                                  width: 50,
+                                  child: LoadingIndicator(
+                                    indicatorType: Indicator.ballRotateChase,
+                                    colors: [Colors.blueGrey],
+                                    strokeWidth: 1,
+                                  ),
+                                );
                               } else if (snapshot.hasError) {
                                 return Text('Error: ${snapshot.error}');
                               } else if (!snapshot.hasData ||
@@ -238,6 +259,75 @@ class _HomePageState extends State<HomePage> {
                               }
                             }),
                         StreamBuilder(
+                            stream: _getVintageProducts(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const  SizedBox(
+                                  width: 50,
+                                  child: LoadingIndicator(
+                                    indicatorType: Indicator.ballRotateChase,
+                                    colors: [Colors.blueGrey],
+                                    strokeWidth: 1,
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.docs.isEmpty) {
+                                return const Text('No products available.');
+                              } else {
+                                List<ProductModel> products = [
+                                  for (var product in snapshot.data!.docs)
+                                    ProductModel(
+                                        name: product["Name"],
+                                        description: product["Desc"],
+                                        location: product["Location"],
+                                        price: product["Price"],
+                                        uid: product["UID"],
+                                        image: product["Image"],
+                                        image3D: product["3D Image"],
+                                        category: product["Category"],
+                                        inventory: product["Inventory"],
+                                        productID: product["ProductID"]),
+                                ];
+                                return MasonryGridView.builder(
+                                  padding: const EdgeInsets.all(0.1),
+                                  mainAxisSpacing: 1.0,
+                                  crossAxisSpacing: 1.0,
+                                  gridDelegate:
+                                  const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                  ),
+                                  itemCount: products.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return FadeInUp(
+                                      delay: Duration(milliseconds: index * 50),
+                                      duration: Duration(
+                                          milliseconds: (index * 50) + 500),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ProductViewPage(product: products[index])));
+                                        },
+                                        child: Container(
+                                          color: Colors.black,
+                                          child: Image.network(
+                                            products[index].image,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                            }),
+                        StreamBuilder(
                             stream: getVintageImages(),
                             builder: (context, snapshot) {
                               return MasonryGridView.builder(
@@ -265,7 +355,6 @@ class _HomePageState extends State<HomePage> {
                                 },
                               );
                             }),
-                        const Center()
                       ],
                     ),
                   )

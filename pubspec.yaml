@@ -29,6 +29,8 @@ dependencies:
   url_launcher: ^6.1.11
   loading_indicator: ^3.1.1
   another_flushbar: ^1.12.30
+  arcore_flutter_plugin: ^0.1.0
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:
@@ -46,4 +48,5 @@ flutter:
   assets:
     - assets/images/artsylane_logo_full.png
     - assets/images/artsylane_logo2.png
+    - assets/images/ar_logo.png
 
