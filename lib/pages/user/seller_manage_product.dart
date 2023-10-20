@@ -19,6 +19,7 @@ class SellerManageProduct extends StatefulWidget {
 class _SellerManageProductState extends State<SellerManageProduct> {
   final User? user = FirebaseAuth.instance.currentUser;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String productID = "";
   String productName = "";
   String productDesc = "";
   String productCategory = "Visual Arts";
@@ -26,7 +27,8 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   String productLocation = "";
   String urlDownload = "";
   String url3dDownload = "";
-  String? imageLink, image3DLink;
+  String imageFile = "";
+  String image3DFile = "";
   PlatformFile? file3D, file;
   UploadTask? task3D, task;
   bool upload = false;
@@ -71,6 +73,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     if (result != null) {
       setState(() {
         file = result.files.single;
+        imageFile = file!.name;
         upload = true;
       });
     } else {
@@ -87,6 +90,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     if (result != null) {
       setState(() {
         file3D = result.files.single;
+        image3DFile = file3D!.name;
         upload = true;
       });
     } else {
@@ -94,13 +98,13 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     }
   }
 
-  Future uploadImage() async {
+  Future uploadImage(productID) async {
     if (file == null) {
       print('Error: File is null.');
       return;
     }
 
-    final path = 'sellerProductImage/${file!.name}';
+    final path = 'sellerProductImage/$productID/${file!.name}';
     final File fileObject = File(file!.path!);
 
     final ref = FirebaseStorage.instance.ref().child(path);
@@ -119,13 +123,13 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     });
   }
 
-  Future upload3DImage() async {
+  Future upload3DImage(productID) async {
     if (file3D == null) {
       print('Error: File is null.');
       return;
     }
 
-    final path = 'sellerProduct3DModel/${file3D!.name}';
+    final path = 'sellerProduct3DModel/$productID/${file3D!.name}';
     final File fileObject = File(file3D!.path!);
 
     final ref = FirebaseStorage.instance.ref().child(path);
@@ -145,12 +149,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     });
   }
 
-  createNewProduct() async {
-    DocumentReference newProductID =
-        FirebaseFirestore.instance.collection("Product").doc();
-
-    String productID = newProductID.id;
-
+  createNewProduct(productID) async {
     await FirebaseFirestore.instance.collection("Product").doc(productID).set({
       "UID": user?.uid.toString(),
       "Image": urlDownload,
@@ -240,6 +239,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   }
 
   showEditProductDialog(ProductModel product) {
+    String productIDNew = product.productID;
     productNameController.text = product.name;
     productDescController.text = product.description;
     productPriceController.text = product.price;
@@ -463,9 +463,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                             selectImage();
                           },
                           icon: const Icon(Icons.upload_outlined),
-                          label: file?.name == null
+                          label: urlDownload == null
                               ? const Text('Select')
-                              : Text(file!.name),
+                              : Text(urlDownload),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blue,
                             backgroundColor: Colors.grey[200],
@@ -479,6 +479,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       ),
                     ]),
                   ),
+                  SizedBox(height: 30,),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: Row(children: [
@@ -494,12 +495,18 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       Expanded(
                         child: TextButton.icon(
                           onPressed: () async {
-                            select3DImage();
+                            await select3DImage();
+                            setState(() {
+                              // Update the state that should trigger a rebuild
+                              // For example, update image3DFile
+                              image3DFile = file3D?.name ?? '';
+                              upload = true;
+                            });
                           },
                           icon: const Icon(Icons.upload_outlined),
-                          label: file3D?.name == null
-                              ? const Text('Select')
-                              : Text(file3D!.name),
+                          label: upload
+                              ? Text(image3DFile)
+                              : (url3dDownload == null ? const Text('Select') : Text(url3dDownload)),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blue,
                             backgroundColor: Colors.grey[200],
@@ -536,8 +543,8 @@ class _SellerManageProductState extends State<SellerManageProduct> {
 
                   if (_formKey.currentState!.validate()) {
                     if (upload == true) {
-                      await uploadImage();
-                      await upload3DImage();
+                      await uploadImage(productIDNew);
+                      await upload3DImage(productIDNew);
                     }
 
                     await updateProduct(product);
@@ -843,9 +850,14 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                   }
 
                   if (_formKey.currentState!.validate()) {
-                    await uploadImage();
-                    await upload3DImage();
-                    await createNewProduct();
+                    DocumentReference newProductID =
+                    FirebaseFirestore.instance.collection("Product").doc();
+
+                    productID = newProductID.id;
+
+                    await uploadImage(productID);
+                    await upload3DImage(productID);
+                    await createNewProduct(productID);
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('New Product Added')),
