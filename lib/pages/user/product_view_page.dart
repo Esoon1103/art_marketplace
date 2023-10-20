@@ -91,7 +91,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                             ),
                             GestureDetector(
                               onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductViewARPage(product3DImage: widget.product.image)));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductViewARPage(product3DImage: widget.product.image3D)));
                               },
                               child: SizedBox(
                                 height: 30,
