@@ -88,11 +88,33 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     );
 
     if (result != null) {
-      setState(() {
-        file3D = result.files.single;
-        image3DFile = file3D!.name;
-        upload = true;
-      });
+      PlatformFile selected3DFile = result.files.single;
+      if(selected3DFile.extension?.toLowerCase() == 'glb'){
+        setState(() {
+          file3D = result.files.single;
+          image3DFile = file3D!.name;
+          upload = true;
+        });
+      }else {
+        // Show an alert dialog if the selected file is not a .glb file
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Invalid 3D File Format'),
+              content: const Text('Please select a .glb file.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     } else {
       return;
     }
@@ -132,8 +154,16 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     final path = 'sellerProduct3DModel/$productID/${file3D!.name}';
     final File fileObject = File(file3D!.path!);
 
+    // Create SettableMetadata to set the content type
+    final SettableMetadata metadata = SettableMetadata(
+      contentType: 'model/gltf-binary', // Set the correct content type for GLB files
+    );
+
     final ref = FirebaseStorage.instance.ref().child(path);
-    task3D = ref.putFile(fileObject);
+    task3D = ref.putFile(
+        fileObject,
+        metadata
+    );
 
     // Wait for the upload to complete
     final snapshot = await task3D!.whenComplete(() {

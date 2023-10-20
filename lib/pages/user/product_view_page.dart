@@ -16,6 +16,7 @@ class ProductViewPage extends StatefulWidget {
 }
 
 class _ProductViewPageState extends State<ProductViewPage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
