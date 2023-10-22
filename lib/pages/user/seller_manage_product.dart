@@ -32,6 +32,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   PlatformFile? file3D, file;
   UploadTask? task3D, task;
   bool upload = false;
+  bool upload3D = false;
   final TextEditingController productNameController = TextEditingController();
   final TextEditingController productDescController = TextEditingController();
   final TextEditingController productPriceController = TextEditingController();
@@ -93,7 +94,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
         setState(() {
           file3D = result.files.single;
           image3DFile = file3D!.name;
-          upload = true;
+          upload3D = true;
         });
       }else {
         // Show an alert dialog if the selected file is not a .glb file
@@ -489,13 +490,23 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       ),
                       Expanded(
                         child: TextButton.icon(
-                          onPressed: () {
-                            selectImage();
+                          onPressed: () async {
+                            await selectImage();
+
+                            if(upload == true){
+                              setState(() {
+                                // Update the state that should trigger a rebuild
+                                // For example, update image3DFile
+                                product.image = file?.name ?? '';
+                              });
+                            }else{
+                              upload == false;
+                            }
                           },
                           icon: const Icon(Icons.upload_outlined),
-                          label: urlDownload == null
-                              ? const Text('Select')
-                              : Text(urlDownload),
+                          label: upload
+                              ? Text(product.image)
+                              : (urlDownload == null ? const Text('Select') : Text(urlDownload)),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blue,
                             backgroundColor: Colors.grey[200],
@@ -526,16 +537,18 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                         child: TextButton.icon(
                           onPressed: () async {
                             await select3DImage();
-                            setState(() {
-                              // Update the state that should trigger a rebuild
-                              // For example, update image3DFile
-                              image3DFile = file3D?.name ?? '';
-                              upload = true;
-                            });
+
+                            if(upload3D == true){
+                              setState(() {
+                                product.image3D = file3D?.name ?? '';
+                                upload = true;
+                              });
+                            }
+
                           },
                           icon: const Icon(Icons.upload_outlined),
                           label: upload
-                              ? Text(image3DFile)
+                              ? Text(product.image3D)
                               : (url3dDownload == null ? const Text('Select') : Text(url3dDownload)),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blue,
@@ -556,7 +569,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
           }),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
+              onPressed: () {
+                Navigator.pop(context, 'Cancel');
+              } ,
               child: const Text('Cancel'),
             ),
             TextButton(

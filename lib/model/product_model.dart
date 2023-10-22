@@ -4,8 +4,8 @@ class ProductModel{
   final String location;
   final String price;
   final String uid;
-  final String image;
-  final String image3D;
+  String image;
+  String image3D;
   final String category;
   final String inventory;
   final String productID;

@@ -12,7 +12,7 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   firebase_core: ^2.19.0
-  firebase_auth: ^4.5.0
+  firebase_auth: ^4.11.1
   cloud_firestore: ^4.11.0
   firebase_storage: ^11.1.2
   flutter_native_splash: ^2.2.19
@@ -29,10 +29,10 @@ dependencies:
   url_launcher: ^6.1.11
   loading_indicator: ^3.1.1
   another_flushbar: ^1.12.30
-  arcore_flutter_plugin: ^0.1.0
   camera: null
   permission_handler: ^11.0.1
   model_viewer_plus: ^1.7.0
+  like_button: ^2.0.5
 
 dev_dependencies:
   flutter_test:

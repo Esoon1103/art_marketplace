@@ -23,7 +23,6 @@ class _ProductViewARPageState extends State<ProductViewARPage> {
         ar: true,
         autoRotate: true,
         disableZoom: true,
-        debugLogging: true,
       ),
     );
   }
