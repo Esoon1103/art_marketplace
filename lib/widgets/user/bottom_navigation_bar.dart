@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import '../../pages/user/cart.dart';
-import '../../pages/user/favourite.dart';
+import '../../pages/user/articles.dart';
 
 class BottomNavigationBar extends StatefulWidget {
   final int pageNum;
@@ -20,7 +20,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 
   List pages = const [
     HomePage(),
-    Favourite(),
+    Articles(),
     Cart(),
     Settings(),
   ];
@@ -48,8 +48,8 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
                 selectedColor: Colors.purple
             ),
             SalomonBottomBarItem(
-                icon: const Icon(Icons.favorite_border),
-                title: const Text("Likes"),
+                icon: const Icon(Icons.place_outlined),
+                title: const Text("Places"),
                 selectedColor: Colors.pink
             ),
             SalomonBottomBarItem(

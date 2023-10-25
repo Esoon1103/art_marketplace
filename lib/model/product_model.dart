@@ -1,14 +1,14 @@
-class ProductModel{
-  final String name;
-  final String description;
-  final String location;
-  final String price;
-  final String uid;
+class ProductModel {
+  String name;
+  String description;
+  String location;
+  String price;
+  String uid;
   String image;
   String image3D;
-  final String category;
-  final String inventory;
-  final String productID;
+  String category;
+  String inventory;
+  String productID;
 
   ProductModel({
     required this.name,

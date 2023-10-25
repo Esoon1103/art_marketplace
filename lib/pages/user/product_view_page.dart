@@ -526,29 +526,6 @@ class _ProductViewPageState extends State<ProductViewPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Container(
-                                height: 50,
-                                width: 50,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                child: LikeButton(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  likeBuilder: (bool isLiked) {
-                                    return Icon(
-                                      Icons.favorite,
-                                      color: isLiked ? Colors.red : Colors.grey,
-                                      size: 30,
-                                    );
-                                  },
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 15,
-                              ),
                               Flexible(
                                 child: MaterialButton(
                                   onPressed: () async {
