@@ -380,7 +380,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
               SettingsTile.navigation(
                 leading: const Icon(Icons.house_outlined),
                 title: const Text('Address'),
-                value: isLoading? const Text("") : Text(address!),
+                value: isLoading? const Text("") : Text(address == null? "No Address Provided" : address!),
                 trailing: IconButton(
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () {
