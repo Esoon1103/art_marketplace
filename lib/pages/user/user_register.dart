@@ -16,7 +16,12 @@ class UserRegister extends StatefulWidget {
 }
 
 class _UserRegisterState extends State<UserRegister> {
-
+  String? dropdownValue;
+  final emailController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -28,14 +33,6 @@ class _UserRegisterState extends State<UserRegister> {
     phoneNumberController.dispose();
     super.dispose();
   }
-
-  String? dropdownValue;
-
-  final emailController = TextEditingController();
-  final phoneNumberController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-  final usernameController = TextEditingController();
 
   void signUp() async{
     try{

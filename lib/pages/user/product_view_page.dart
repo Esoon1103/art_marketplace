@@ -1,4 +1,3 @@
-
 import 'package:another_flushbar/flushbar.dart';
 import 'package:art_marketplace/model/product_model.dart';
 import 'package:art_marketplace/pages/user/product_view_ar_page.dart';
@@ -7,7 +6,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:like_button/like_button.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 
 class ProductViewPage extends StatefulWidget {
@@ -34,7 +32,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
       TextEditingController(text: "1");
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     getSellerName();
     getInventory();
@@ -43,8 +41,8 @@ class _ProductViewPageState extends State<ProductViewPage> {
   }
 
   @override
-  dispose(){
-    currentNumberController.clear();
+  void dispose(){
+    currentNumberController.dispose();
     super.dispose();
   }
 
@@ -118,13 +116,6 @@ class _ProductViewPageState extends State<ProductViewPage> {
 
   void _incrementNumber() async {
     await getInventory();
-
-    //Check
-    //if add quantity + cart quantity will exceed the stocks
-    //Get current Cart quantity
-    //Don't let the Increment value + Cart quantity  larger than Total Stocks
-
-
 
     if (latestInventory == 0) {
       // If the firestore inventory is 0
@@ -359,7 +350,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
             )
           : CustomScrollView(slivers: [
               SliverAppBar(
-                iconTheme: const IconThemeData(color: Colors.grey),
+                iconTheme: const IconThemeData(color: Colors.blue),
                 expandedHeight: MediaQuery.of(context).size.height * 0.7,
                 elevation: 0,
                 snap: true,

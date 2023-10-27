@@ -18,6 +18,13 @@ class _UserLoginState extends State<UserLogin> {
   final passwordController = TextEditingController();
   bool passwordView = true;
 
+  @override
+  void dispose(){
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   void signIn() async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(

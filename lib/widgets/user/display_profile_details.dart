@@ -1,3 +1,4 @@
+import 'package:art_marketplace/pages/user/recently_viewed.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -425,6 +426,17 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                       MaterialPageRoute(
                           builder: (context) =>
                           const SellerCentre()));
+                },
+              ),
+              SettingsTile.navigation(
+                leading: const Icon(Icons.remove_red_eye_rounded),
+                title: const Text('Recently Viewed'),
+                onPressed: (context) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                          const RecentlyViewed()));
                 },
               ),
               SettingsTile(
