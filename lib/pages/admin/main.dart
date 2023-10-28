@@ -1,68 +1,88 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:art_marketplace/pages/admin/admin_home.dart';
+import 'package:art_marketplace/pages/admin/admin_login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure that Flutter is initialized
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  runApp(const MaterialApp(
+    home: AuthPage(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo Test',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Test 123123Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class AuthPage extends StatefulWidget {
+  const AuthPage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<AuthPage> createState() => _AuthPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _AuthPageState extends State<AuthPage> {
+  checkAdminStatus() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user?.uid.toString())
+            .get();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    if (userSnapshot.exists) {
+      bool isAdmin = userSnapshot['isAdmin'] ?? false;
+
+      if (isAdmin) {
+        // The user is an admin
+        return const AdminHome();
+      } else {
+        Flushbar(
+          icon: Icon(
+            Icons.info_outline,
+            size: 28.0,
+            color: Colors.blue[300],
+          ),
+          animationDuration: const Duration(seconds: 1),
+          duration: const Duration(seconds: 2),
+          margin: const EdgeInsets.all(6.0),
+          flushbarStyle: FlushbarStyle.FLOATING,
+          borderRadius: BorderRadius.circular(12),
+          leftBarIndicatorColor: Colors.blue[300],
+          message: "You have no permission to enter!",
+        ).show(context);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            checkAdminStatus();
+            return SizedBox.shrink();
+          } else if (snapshot.data == null) {
+            // Admin is not logged in, navigate to login page
+            return const AdminLogin();
+          } else if (snapshot.hasError) {
+            return const Center(
+              child: Text('Something Went Wrong :('),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
   }
