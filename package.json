@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "flutter build web --no-tree-shake-icons"
+    "build": "flutter build web"
   },
   "repository": {
     "type": "git",
