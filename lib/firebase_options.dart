@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -64,5 +61,15 @@ class DefaultFirebaseOptions {
     projectId: 'artmarketplace-c750e',
     storageBucket: 'artmarketplace-c750e.appspot.com',
     iosBundleId: 'com.example.artMarketplace',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+      apiKey: "AIzaSyBgROyyokYsrHX5fRGRBui_Xt1GTA6wuu8",
+      authDomain: "artmarketplace-c750e.firebaseapp.com",
+      projectId: "artmarketplace-c750e",
+      storageBucket: "artmarketplace-c750e.appspot.com",
+      messagingSenderId: "802352147965",
+      appId: "1:802352147965:web:40045a3f66194937c23d94",
+      measurementId: "G-6BQFS5Z04Z"
   );
 }
