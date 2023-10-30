@@ -22,7 +22,7 @@ class _RecentlyViewedState extends State<RecentlyViewed> {
           .collection("Users")
           .doc(user?.uid.toString())
           .collection("RecentlyViewed")
-          .orderBy("Date")
+          .orderBy("Date", descending: true)
           .get();
 
       List<ProductModel> products = [];

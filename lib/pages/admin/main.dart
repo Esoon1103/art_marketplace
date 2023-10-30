@@ -1,4 +1,3 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:art_marketplace/pages/admin/admin_home.dart';
 import 'package:art_marketplace/pages/admin/admin_login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -28,6 +27,12 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+  @override
+  initState(){
+    checkAdminStatus();
+    super.initState();
+  }
+
   checkAdminStatus() async {
     final User? user = FirebaseAuth.instance.currentUser;
     DocumentSnapshot<Map<String, dynamic>> userSnapshot =
@@ -40,25 +45,22 @@ class _AuthPageState extends State<AuthPage> {
       bool isAdmin = userSnapshot['isAdmin'] ?? false;
 
       if (isAdmin) {
-        // The user is an admin
-        return const AdminHome();
-      } else {
-        Flushbar(
-          icon: Icon(
-            Icons.info_outline,
-            size: 28.0,
-            color: Colors.blue[300],
-          ),
-          animationDuration: const Duration(seconds: 1),
-          duration: const Duration(seconds: 2),
-          margin: const EdgeInsets.all(6.0),
-          flushbarStyle: FlushbarStyle.FLOATING,
-          borderRadius: BorderRadius.circular(12),
-          leftBarIndicatorColor: Colors.blue[300],
-          message: "You have no permission to enter!",
-        ).show(context);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+          return const AdminHome();
+        }));
+      }else{
+        showNotAdminPrompt();
       }
     }
+  }
+
+  void showNotAdminPrompt() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Access Denied: You are not an admin.'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -68,10 +70,8 @@ class _AuthPageState extends State<AuthPage> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            checkAdminStatus();
-            return SizedBox.shrink();
+            return const AdminLogin();
           } else if (snapshot.data == null) {
-            // Admin is not logged in, navigate to login page
             return const AdminLogin();
           } else if (snapshot.hasError) {
             return const Center(
