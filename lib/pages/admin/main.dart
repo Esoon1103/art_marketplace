@@ -29,7 +29,7 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   @override
   initState(){
-    checkAdminStatus();
+
     super.initState();
   }
 
@@ -70,6 +70,7 @@ class _AuthPageState extends State<AuthPage> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            checkAdminStatus();
             return const AdminLogin();
           } else if (snapshot.data == null) {
             return const AdminLogin();

@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import '../../model/cart_model.dart';
 import 'cart_item.dart';
+import 'package:http/http.dart' as http;
 
 class Cart extends StatefulWidget {
   const Cart({super.key});
@@ -17,6 +21,7 @@ class _CartState extends State<Cart> {
   final User? user = FirebaseAuth.instance.currentUser;
   double totalPrice = 0;
   List<CartModel> cart = [];
+  Map<String, dynamic>? paymentIntent;
 
   Stream _getCartItems() {
     if (user != null) {
@@ -29,6 +34,42 @@ class _CartState extends State<Cart> {
       return snapshot;
     } else {
       return const Stream.empty();
+    }
+  }
+
+  Future<void> payment() async {
+    try {
+      Map<String, dynamic> body = {"amount": "10000", "currency": "MYR"};
+
+      var response = await http.post(
+        Uri.parse("https://api.stripe.com/v1/payment_intents"),
+        headers: {
+          "Authorization":
+              "Bearer sk_test_51O7JIUFC8KYffCidA0PlQzgXgug2AJzn78jwRUYzyFkp6HH47ZJkbI1LWq9sMYOfm7MChKA7FGQJTosqtcOmXWvF00HHU9ofyV",
+          "Content-type": "application/x-www-form-urlencoded"
+        },
+        body: body,
+      );
+      paymentIntent = json.decode(response.body);
+    } catch (e) {
+      print(e);
+    }
+    print(paymentIntent);
+    await Stripe.instance
+        .initPaymentSheet(
+            paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: paymentIntent!["client_secret"],
+          style: ThemeMode.light,
+          merchantDisplayName: "Artsylane",
+        ))
+        .then((value) => {});
+
+    try {
+      await Stripe.instance
+          .presentPaymentSheet()
+          .then((value) => {print("Payment Success")});
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -120,7 +161,7 @@ class _CartState extends State<Cart> {
               color: Colors.black,
             ),
             onPressed: () {
-              if(cart.isEmpty){
+              if (cart.isEmpty) {
                 Flushbar(
                   icon: Icon(
                     Icons.info_outline,
@@ -129,13 +170,14 @@ class _CartState extends State<Cart> {
                   ),
                   animationDuration: const Duration(seconds: 1),
                   duration: const Duration(seconds: 1),
-                  margin: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 70),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 6.0, vertical: 70),
                   flushbarStyle: FlushbarStyle.FLOATING,
                   borderRadius: BorderRadius.circular(12),
                   leftBarIndicatorColor: Colors.blue[300],
                   message: "Cart is Empty!",
                 ).show(context);
-              }else{
+              } else {
                 emptyCartDialog();
               }
             },
@@ -239,32 +281,35 @@ class _CartState extends State<Cart> {
                                 ),
                                 const SizedBox(height: 30),
                                 Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      child: MaterialButton(
-                                        onPressed: (){
-
-                                        },
-                                        elevation: 0,
-                                        height: 50,
-                                        splashColor: Colors.white54,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10)),
-                                        color: Colors.black87,
-                                        child: const Center(
-                                          child: Text("Checkout",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Flexible(
+                                        child: MaterialButton(
+                                          onPressed: () {
+                                            payment();
+                                          },
+                                          elevation: 0,
+                                          height: 50,
+                                          splashColor: Colors.white54,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          color: Colors.black87,
+                                          child: const Center(
+                                            child: Text(
+                                              "Checkout",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ]
-                                ),
+                                    ]),
                               ],
                             );
                           }
