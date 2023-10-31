@@ -77,4 +77,5 @@ dependencies {
 
     // Alternatively, use ArSceneView without the UX dependency.
     implementation 'com.google.ar.sceneform:core:1.17.1'
+    implementation 'com.stripe:stripe-android:20.31.0'
 }

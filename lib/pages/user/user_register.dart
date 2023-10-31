@@ -52,6 +52,8 @@ class _UserRegisterState extends State<UserRegister> {
           'Username' : usernameController.text,
           'UID' : FirebaseAuth.instance.currentUser!.uid,
           'Seller' : 'false',
+          'isAdmin': false,
+          'Address': null,
         });
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const UserLogin()));

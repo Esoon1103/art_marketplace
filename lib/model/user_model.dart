@@ -3,7 +3,7 @@ class UserModel{
   String phone;
   String uid;
   String username;
-  String seller;
+  bool seller;
   bool isAdmin;
 
   UserModel({

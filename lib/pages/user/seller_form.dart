@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
@@ -24,7 +25,7 @@ class _SellerFormState extends State<SellerForm> {
 
   @override
   void dispose(){
-    businessOverviewController.clear();
+    businessOverviewController.dispose();
     super.dispose();
   }
 
@@ -33,8 +34,10 @@ class _SellerFormState extends State<SellerForm> {
       "UID" : user?.uid.toString(),
       "fileURL" : urls,
       "BusinessDesc" : businessOverviewController.text.toString(),
-      "Approval" : "Waiting for review"
+      "Approval" : "Waiting for Review"
     });
+
+    businessOverviewController.clear();
   }
 
   void selectFiles() async {
@@ -181,19 +184,41 @@ class _SellerFormState extends State<SellerForm> {
                     ),
                     onPressed: () async {
                       if (_files.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please select your documents')),
-                        );
+                        Flushbar(
+                          icon: Icon(
+                            Icons.info_outline,
+                            size: 28.0,
+                            color: Colors.blue[300],
+                          ),
+                          animationDuration: const Duration(seconds: 1),
+                          duration: const Duration(seconds: 2),
+                          margin: const EdgeInsets.all(6.0),
+                          flushbarStyle: FlushbarStyle.FLOATING,
+                          borderRadius: BorderRadius.circular(12),
+                          leftBarIndicatorColor: Colors.blue[300],
+                          message: "Please select your documents",
+                        ).show(context);
                         return;
                       }
 
                       if (_formKey.currentState!.validate()) {
                         await uploadFilesAndForm();
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Form Submitted')),
-                        );
                         Navigator.pop(context);
+
+                        Flushbar(
+                          icon: Icon(
+                            Icons.info_outline,
+                            size: 28.0,
+                            color: Colors.blue[300],
+                          ),
+                          animationDuration: const Duration(seconds: 1),
+                          duration: const Duration(seconds: 2),
+                          margin: const EdgeInsets.all(6.0),
+                          flushbarStyle: FlushbarStyle.FLOATING,
+                          borderRadius: BorderRadius.circular(12),
+                          leftBarIndicatorColor: Colors.blue[300],
+                          message: "Form Submitted",
+                        ).show(context);
                       }
                     },
                     child: const Text('Submit'),

@@ -16,6 +16,7 @@ class SellerCentre extends StatefulWidget {
 class _SellerCentreState extends State<SellerCentre> {
   final User? user = FirebaseAuth.instance.currentUser;
   String? approval = "false";
+  String rejectReason = "";
   bool isLoading = true;
   bool onTap = false;
   bool onTap1 = false;
@@ -34,6 +35,8 @@ class _SellerCentreState extends State<SellerCentre> {
             .collection("SellerApplicationForm")
             .doc(user?.uid.toString())
             .get();
+
+    rejectReason = sellerFormData.data()?["Reason"];
 
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -67,20 +70,19 @@ class _SellerCentreState extends State<SellerCentre> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (approval == "Waiting for review" ||
-                        approval == null ||
+                    if (approval == "Waiting for Review" ||
                         approval == "Rejected")
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Begin your Business Now!",
-                            style: TextStyle(
+                          Text(
+                            approval == "Waiting for Review" ? "Your request has been submitted to the admin. Please wait for the approval." : "Unfortunately, your request to be a seller has been REJECTED \n Reason: $rejectReason",
+                            style: const TextStyle(
                               fontSize: 20,
                             ),
                           ),
-                          ElevatedButton(
+                          approval == "Rejected" ? ElevatedButton(
                             onPressed: () {
                               Navigator.push(
                                 context,
@@ -90,12 +92,12 @@ class _SellerCentreState extends State<SellerCentre> {
                               );
                             },
                             child: const Text(
-                              "Apply Now!",
+                              "Re-Apply Now!",
                               style: TextStyle(
                                 fontSize: 20,
                               ),
                             ),
-                          ),
+                          ) : const SizedBox.shrink(),
                         ],
                       )
                     else
@@ -111,12 +113,17 @@ class _SellerCentreState extends State<SellerCentre> {
                                   onTap1 = false;
                                 });
 
-                                Future.delayed(const Duration(milliseconds: 150), () {
+                                Future.delayed(
+                                    const Duration(milliseconds: 150), () {
                                   setState(() {
                                     onTap = false;
                                     onTap1 = false;
                                   });
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SellerManageProduct()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SellerManageProduct()));
                                 });
                               },
                               child: AnimatedContainer(
@@ -129,9 +136,8 @@ class _SellerCentreState extends State<SellerCentre> {
                                       ? Colors.amber.shade50
                                       : Colors.grey.shade100,
                                   border: Border.all(
-                                    color: onTap
-                                        ? Colors.amber
-                                        : Colors.black12,
+                                    color:
+                                        onTap ? Colors.amber : Colors.black12,
                                     width: 2.0,
                                   ),
                                   borderRadius: BorderRadius.circular(20.0),
@@ -140,23 +146,26 @@ class _SellerCentreState extends State<SellerCentre> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                            Text(
-                                              "Manage Products",
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: onTap
-                                                      ? Colors.amber.shade800
-                                                      : Colors.black),
-                                            )
+                                          Text(
+                                            "Manage Products",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: onTap
+                                                    ? Colors.amber.shade800
+                                                    : Colors.black),
+                                          )
                                         ],
                                       ),
                                     ]),
                               ),
                             ),
-                            const SizedBox(height: 25,),
+                            const SizedBox(
+                              height: 25,
+                            ),
                             GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -164,15 +173,18 @@ class _SellerCentreState extends State<SellerCentre> {
                                   onTap1 = !onTap1;
                                 });
 
-                                Future.delayed(const Duration(milliseconds: 150), () {
+                                Future.delayed(
+                                    const Duration(milliseconds: 150), () {
                                   setState(() {
                                     onTap = false;
                                     onTap1 = false;
                                   });
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const SellerManageOrder()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SellerManageOrder()));
                                 });
-
-
                               },
                               child: AnimatedContainer(
                                 width: MediaQuery.of(context).size.width,
@@ -184,9 +196,8 @@ class _SellerCentreState extends State<SellerCentre> {
                                       ? Colors.amber.shade50
                                       : Colors.grey.shade100,
                                   border: Border.all(
-                                    color: onTap1
-                                        ? Colors.amber
-                                        : Colors.black12,
+                                    color:
+                                        onTap1 ? Colors.amber : Colors.black12,
                                     width: 2.0,
                                   ),
                                   borderRadius: BorderRadius.circular(20.0),
@@ -195,17 +206,18 @@ class _SellerCentreState extends State<SellerCentre> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                            Text(
-                                              "Manage Orders",
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: onTap1
-                                                      ? Colors.amber.shade800
-                                                      : Colors.black),
-                                            )
+                                          Text(
+                                            "Manage Orders",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: onTap1
+                                                    ? Colors.amber.shade800
+                                                    : Colors.black),
+                                          )
                                         ],
                                       ),
                                     ]),

@@ -179,7 +179,7 @@ class _AdminLoginState extends State<AdminLogin> {
                             },
                             controller: passwordController,
                             obscuringCharacter: '*',
-                            obscureText: !passwordView,
+                            obscureText: passwordView,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Enter your password',
@@ -188,8 +188,8 @@ class _AdminLoginState extends State<AdminLogin> {
                               ),
                               suffixIcon: IconButton(
                                 icon: passwordView
-                                    ?  const Icon(Icons.visibility)
-                                    :  const Icon(Icons.visibility_off),
+                                    ?  const Icon(Icons.visibility_off)
+                                    :  const Icon(Icons.visibility),
                                 onPressed: () {
                                   setState(() {
                                     passwordView = !passwordView;
@@ -244,6 +244,8 @@ class _AdminLoginState extends State<AdminLogin> {
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
                                   signIn();
+                                  emailController.clear();
+                                  passwordController.clear();
                                 }
                               },
                               child: const Padding(

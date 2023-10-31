@@ -177,7 +177,7 @@ class _UserLoginState extends State<UserLogin> {
                         },
                         controller: passwordController,
                         obscuringCharacter: '*',
-                        obscureText: !passwordView,
+                        obscureText: passwordView,
                         decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Enter your password',
@@ -186,8 +186,8 @@ class _UserLoginState extends State<UserLogin> {
                           ),
                           suffixIcon: IconButton(
                             icon: passwordView
-                                ?  const Icon(Icons.visibility)
-                                :  const Icon(Icons.visibility_off),
+                                ?  const Icon(Icons.visibility_off)
+                                :  const Icon(Icons.visibility),
                             onPressed: () {
                               setState(() {
                                 passwordView = !passwordView;

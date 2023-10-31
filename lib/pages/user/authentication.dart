@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:art_marketplace/widgets/user/bottom_navigation_bar.dart'
     as user_bottom_navigation_bar;
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure that Flutter is initialized
   await Firebase.initializeApp();
-
+  Stripe.publishableKey = "pk_test_51O7JIUFC8KYffCidIm9Zih9sGQkyTCWPhnLgmBpy4OTYgIaygLtaLxWeBU7hlH2ogEWBNdc1m1t3eHlTCL6er5M300CKTMIaSi";
   runApp(const MaterialApp(
     home: AuthPage(),
     debugShowCheckedModeBanner: false,
