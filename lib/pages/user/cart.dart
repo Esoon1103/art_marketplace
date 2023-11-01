@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:math';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,10 +37,11 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Future<void> payment() async {
+  Future<void> payment(double amount) async {
     try {
-      Map<String, dynamic> body = {"amount": "10000", "currency": "MYR"};
-
+      int amountCents = amount.round() * 100;
+      print(amountCents);
+      Map<String, dynamic> body = {"amount": amountCents.toString(), "currency": "MYR"};
       var response = await http.post(
         Uri.parse("https://api.stripe.com/v1/payment_intents"),
         headers: {
@@ -289,7 +290,7 @@ class _CartState extends State<Cart> {
                                       Flexible(
                                         child: MaterialButton(
                                           onPressed: () {
-                                            payment();
+                                            payment(totalPrice);
                                           },
                                           elevation: 0,
                                           height: 50,
