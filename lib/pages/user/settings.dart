@@ -19,7 +19,7 @@ class _SettingsState extends State<Settings> {
           child: const Column(
             children: [
               SizedBox(
-                height: 25,
+                height: 52,
               ),
               DisplayProfileDetails(),
               SizedBox(

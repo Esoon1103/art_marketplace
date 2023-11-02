@@ -111,7 +111,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
             .doc(widget.product.productID)
             .get();
 
-    latestInventory = int.parse(inventory.data()?["Inventory"]);
+    latestInventory = inventory.data()?["Inventory"];
   }
 
   void _incrementNumber() async {
@@ -306,6 +306,11 @@ class _ProductViewPageState extends State<ProductViewPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Added to Cart!')),
       );
+      // Delay for 1 second and then hide the SnackBar
+      Future.delayed(Duration(seconds: 1), () {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      });
+
     } else {
       //Add to cart for the product
       await FirebaseFirestore.instance
@@ -320,17 +325,11 @@ class _ProductViewPageState extends State<ProductViewPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Added to Cart!')),
       );
+      // Delay for 1 second and then hide the SnackBar
+      Future.delayed(Duration(seconds: 1), () {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      });
     }
-
-    //Order Part
-    //Decrease the inventory according to the number
-    // await FirebaseFirestore.instance
-    //     .collection("Product")
-    //     .doc(productID)
-    //     .update({
-    //   "Inventory": (latestInventory - int.parse(currentNumberController.text))
-    //       .toString(),
-    // });
   }
 
   @override
@@ -405,70 +404,74 @@ class _ProductViewPageState extends State<ProductViewPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.product.name,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.product.name,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis, // This line handles overflow
+                                      maxLines: 5,
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  int.parse(widget.product.inventory) <= 5
-                                      ? Text(
-                                          "\t${widget.product.inventory} items remaining",
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 12,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        )
-                                      : const SizedBox(),
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProductViewARPage(
-                                                      product3DImage: widget
-                                                          .product.image3D)));
-                                    },
-                                    child: SizedBox(
-                                      height: 30,
-                                      width: 90,
-                                      child: DottedBorder(
-                                        borderType: BorderType.RRect,
-                                        radius: const Radius.circular(12),
-                                        padding: const EdgeInsets.all(6),
-                                        child: ClipRRect(
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(12)),
-                                            child: Row(children: [
-                                              Image.asset(
-                                                  'assets/images/ar_logo.png'),
-                                              const Text(
-                                                "View AR",
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    widget.product.inventory <= 5
+                                        ? Text(
+                                            "\t${(widget.product.inventory).toString()} items remaining",
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 12,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          )
+                                        : const SizedBox(),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProductViewARPage(
+                                                        product3DImage: widget
+                                                            .product.image3D)));
+                                      },
+                                      child: SizedBox(
+                                        height: 30,
+                                        width: 90,
+                                        child: DottedBorder(
+                                          borderType: BorderType.RRect,
+                                          radius: const Radius.circular(12),
+                                          padding: const EdgeInsets.all(6),
+                                          child: ClipRRect(
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(12)),
+                                              child: Row(children: [
+                                                Image.asset(
+                                                    'assets/images/ar_logo.png'),
+                                                const Text(
+                                                  "View AR",
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
-                                              ),
-                                            ])),
+                                              ])),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               Text(
                                 "RM ${widget.product.price}.00",

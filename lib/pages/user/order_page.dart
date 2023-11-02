@@ -1,16 +1,16 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:art_marketplace/widgets/user/get_order_list.dart';
 import 'package:flutter/material.dart';
 
-import '../../widgets/user/get_seller_order_list.dart';
-
-class SellerManageOrder extends StatefulWidget {
-  const SellerManageOrder({super.key});
+class OrderPage extends StatefulWidget {
+  const OrderPage({super.key});
 
   @override
-  State<SellerManageOrder> createState() => _SellerManageOrderState();
+  State<OrderPage> createState() => _OrderPageState();
 }
 
-class _SellerManageOrderState extends State<SellerManageOrder> {
+class _OrderPageState extends State<OrderPage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +32,7 @@ class _SellerManageOrderState extends State<SellerManageOrder> {
                                   },
                                   icon: const Icon(Icons.arrow_back)),
                               Text(
-                                "Manage Orders  📦",
+                                "My Orders  📦",
                                 style: TextStyle(
                                     fontSize: 25,
                                     fontWeight: FontWeight.w600,
@@ -71,12 +71,12 @@ class _SellerManageOrderState extends State<SellerManageOrder> {
                           )
                         ]),
                   ),
-                   const Expanded(
+                  const Expanded(
                     child: TabBarView(
                       children: [
-                        GetSellerOrderList(orderStatus: "Ready to Pack"),
-                        GetSellerOrderList(orderStatus: "Delivering"),
-                        GetSellerOrderList(orderStatus: "Delivered"),
+                        GetOrderList(orderStatus: "Ready to Pack"),
+                        GetOrderList(orderStatus: "Delivering"),
+                        GetOrderList(orderStatus: "Delivered"),
                       ],
                     ),
                   )

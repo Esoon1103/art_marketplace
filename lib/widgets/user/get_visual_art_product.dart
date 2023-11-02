@@ -10,7 +10,9 @@ import '../../model/product_model.dart';
 import '../../pages/user/product_view_page.dart';
 
 class GetVisualArtProduct extends StatefulWidget {
-  const GetVisualArtProduct({super.key});
+  final String productCategory;
+
+  const GetVisualArtProduct({super.key, required this.productCategory});
 
   @override
   State<GetVisualArtProduct> createState() => _GetVisualArtProductState();
@@ -24,7 +26,7 @@ class _GetVisualArtProductState extends State<GetVisualArtProduct> {
     if (user != null) {
       Stream<QuerySnapshot<Object?>> snapshot = FirebaseFirestore.instance
           .collection('Product')
-          .where("Category", isEqualTo: "Visual Arts")
+          .where("Category", isEqualTo: widget.productCategory)
           .snapshots();
 
       return snapshot;

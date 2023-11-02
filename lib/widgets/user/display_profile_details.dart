@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../pages/user/order_page.dart';
 import '../../pages/user/seller_centre.dart';
 import '../../pages/user/user_login.dart';
 
@@ -317,8 +318,9 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
         .doc(user?.uid.toString())
         .get();
 
+
     setState(() {
-      address = getAddress.data()?["Address"].toString();
+      address = getAddress.data()?["Address"] ?? "";
       addressController.text = address!;
       isLoading = false;
     });
@@ -381,7 +383,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
               SettingsTile.navigation(
                 leading: const Icon(Icons.house_outlined),
                 title: const Text('Address'),
-                value: isLoading? const Text("") : Text(address == null? "No Address Provided" : address!),
+                value: isLoading? const Text("") : Text(address == ""? "No Address Provided" : address!),
                 trailing: IconButton(
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () {
@@ -426,6 +428,16 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                       MaterialPageRoute(
                           builder: (context) =>
                           const SellerCentre()));
+                },
+              ),
+              SettingsTile.navigation(
+                leading: const Icon(Icons.shopping_bag_outlined),
+                title: const Text('My Orders'),
+                onPressed: (context) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const OrderPage()));
                 },
               ),
               SettingsTile.navigation(

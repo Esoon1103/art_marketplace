@@ -8,9 +8,9 @@ import '../../model/cart_model.dart';
 import '../../model/product_model.dart';
 
 class CartItem extends StatefulWidget {
-  CartModel cartItem;
+  final CartModel cartItem;
 
-  CartItem({
+  const CartItem({
     Key? key,
     required this.cartItem,
   }) : super(key: key);
@@ -26,15 +26,15 @@ class _CartItemState extends State<CartItem> {
 
   final ButtonStyle style = ElevatedButton.styleFrom(
     textStyle: const TextStyle(fontSize: 14),
+    backgroundColor: const Color(0xFF7DCCEC),
     padding: const EdgeInsets.all(0),
     minimumSize: const Size(22, 22),
     maximumSize: const Size(22, 22),
     elevation: 0,
-    primary: const Color(0xFF7DCCEC),
   );
 
   @override
-  initState(){
+  initState() {
     quantity = int.parse(widget.cartItem.quantity);
     getInventory();
     super.initState();
@@ -43,8 +43,8 @@ class _CartItemState extends State<CartItem> {
   Future<ProductModel?> fetchProductDetails(String productID) async {
     if (user != null) {
       try {
-        DocumentSnapshot<Map<String, dynamic>> product =
-        await FirebaseFirestore.instance
+        DocumentSnapshot<Map<String, dynamic>> product = await FirebaseFirestore
+            .instance
             .collection('Product')
             .doc(productID)
             .get();
@@ -77,12 +77,21 @@ class _CartItemState extends State<CartItem> {
   getInventory() async {
     //retrieve current product id
     final DocumentSnapshot<Map<String, dynamic>> inventory =
-    await FirebaseFirestore.instance
-        .collection("Product")
-        .doc(widget.cartItem.productID)
-        .get();
+        await FirebaseFirestore.instance
+            .collection("Product")
+            .doc(widget.cartItem.productID)
+            .get();
 
-    latestInventory = int.parse(inventory.data()?["Inventory"]);
+    latestInventory = inventory.data()?["Inventory"];
+
+    if (latestInventory == 0) {
+      await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(user?.uid.toString())
+          .collection("Cart")
+          .doc(widget.cartItem.productID)
+          .delete();
+    }
   }
 
   Future<void> decrement() async {
@@ -95,11 +104,10 @@ class _CartItemState extends State<CartItem> {
           .collection("Cart")
           .doc(widget.cartItem.productID)
           .update({
-        "Quantity": (quantity-1).toString(),
+        "Quantity": (quantity - 1).toString(),
       });
-
-    }else if(quantity == 1){
-      //Delete the product from cart if the current number is 1
+    } else if (quantity == 1 || quantity == 0) {
+      //Delete the product from cart if the current number is 1 or 0
       await FirebaseFirestore.instance
           .collection("Users")
           .doc(user?.uid.toString())
@@ -112,7 +120,8 @@ class _CartItemState extends State<CartItem> {
   Future<void> increment() async {
     await getInventory();
 
-    if(quantity == latestInventory){ //if current quantity is same as stock, stop the increment
+    if (quantity == latestInventory) {
+      //if current quantity is same as stock, stop the increment
       Flushbar(
         icon: Icon(
           Icons.info_outline,
@@ -128,14 +137,14 @@ class _CartItemState extends State<CartItem> {
         message: "You have reached the maximum of product stock!",
       ).show(context);
       return;
-    }else{
+    } else {
       await FirebaseFirestore.instance
           .collection("Users")
           .doc(user?.uid.toString())
           .collection("Cart")
           .doc(widget.cartItem.productID)
           .update({
-        "Quantity": (quantity+1).toString(),
+        "Quantity": (quantity + 1).toString(),
       });
     }
   }
@@ -215,13 +224,13 @@ class _CartItemState extends State<CartItem> {
                       ),
                       latestInventory <= 5
                           ? Text(
-                        "\t${latestInventory.toString()} items remaining",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      )
+                              "\t${latestInventory.toString()} items remaining",
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            )
                           : const SizedBox(),
                     ],
                   )

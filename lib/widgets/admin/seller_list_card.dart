@@ -190,7 +190,9 @@ class _SellerListCardState extends State<SellerListCard> {
               uid: user["UID"],
               username: user["Username"],
               seller: user["Seller"],
-              isAdmin: user["isAdmin"]);
+              isAdmin: user["isAdmin"],
+              address: user["Address"]
+          );
         } else {
           return null;
         }

@@ -7,7 +7,7 @@ class ProductModel {
   String image;
   String image3D;
   String category;
-  String inventory;
+  int inventory;
   String productID;
 
   ProductModel({
