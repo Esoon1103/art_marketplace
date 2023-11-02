@@ -1,12 +1,10 @@
 import 'package:art_marketplace/pages/user/search.dart';
-import 'package:art_marketplace/widgets/user/get_vintage_product.dart';
 import 'package:art_marketplace/widgets/user/get_visual_art_product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
-import '../../widgets/user/get_nature_product.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -150,9 +148,9 @@ class _HomePageState extends State<HomePage> {
                   const Expanded(
                     child: TabBarView(
                       children: [
-                        GetVisualArtProduct(),
-                        GetVintageProduct(),
-                        GetNatureProduct(),
+                        GetVisualArtProduct(productCategory: "Visual Arts"),
+                        GetVisualArtProduct(productCategory: "Vintage"),
+                        GetVisualArtProduct(productCategory: "Nature"),
                       ],
                     ),
                   )

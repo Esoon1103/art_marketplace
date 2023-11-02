@@ -189,7 +189,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
       "Desc": productDescController.text.toString(),
       "Price": productPriceController.text.toString(),
       "Location": productLocationController.text.toString(),
-      "Inventory": inventoryController.text.toString(),
+      "Inventory": int.parse(inventoryController.text),
       "Category": productCategory.toString(),
       "ProductID": productID,
     });
@@ -247,10 +247,26 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   }
 
   deleteProduct(String productID) async {
-    await FirebaseFirestore.instance
-        .collection("Product")
-        .doc(productID)
-        .delete();
+    // Check if there are any orders with the specified productID
+    QuerySnapshot<Map<String, dynamic>> ordersSnapshot = await FirebaseFirestore.instance
+        .collection('Orders')
+        .where('ProductID', isEqualTo: productID)
+        .get();
+
+    if (ordersSnapshot.docs.isEmpty) {
+      await FirebaseFirestore.instance
+          .collection("Product")
+          .doc(productID)
+          .delete();
+      print("Delete the product from product collection");
+    } else {
+      // There are orders, update the product's inventory to 0
+      await FirebaseFirestore.instance
+          .collection("Product")
+          .doc(productID)
+          .update({'Inventory': 0});
+      print("Update the product inventory to 0 from product collection");
+    }
   }
 
   updateProduct(ProductModel product) async {
@@ -264,7 +280,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
       "Desc": productDescController.text.toString(),
       "Price": productPriceController.text.toString(),
       "Location": productLocationController.text.toString(),
-      "Inventory": inventoryController.text.toString(),
+      "Inventory": int.parse(inventoryController.text),
       "Category": productCategory.toString(),
     });
   }
@@ -275,7 +291,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     productDescController.text = product.description;
     productPriceController.text = product.price;
     productLocationController.text = product.location;
-    inventoryController.text = product.inventory;
+    inventoryController.text = product.inventory.toString();
     productCategory = product.category;
     urlDownload = product.image;
     url3dDownload = product.image3D;
@@ -1000,13 +1016,26 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Text(
-                                        products[index].name,
-                                        style: TextStyle(
-                                          fontSize: 19,
-                                          color: Colors.grey[800],
-                                        ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            products[index].name,
+                                            style: TextStyle(
+                                              fontSize: 19,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                          Text(
+                                            "Inventory: ${(products[index].inventory).toString()}",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.grey[800],
+                                            ),
+                                          ),
+                                        ],
                                       ),
+
                                       const SizedBox(
                                         height: 10,
                                       ),

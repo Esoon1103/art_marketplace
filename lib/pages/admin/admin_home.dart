@@ -44,7 +44,7 @@ class _AdminHomeState extends State<AdminHome> {
           children: [
             InkWell(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const AdminArticles()),
@@ -65,7 +65,7 @@ class _AdminHomeState extends State<AdminHome> {
             const SizedBox(height: 20),
             InkWell(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const AdminSellerList()),

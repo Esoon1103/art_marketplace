@@ -5,6 +5,7 @@ class UserModel{
   String username;
   bool seller;
   bool isAdmin;
+  String address;
 
   UserModel({
     required this.email,
@@ -13,5 +14,6 @@ class UserModel{
     required this.username,
     required this.seller,
     required this.isAdmin,
+    required this.address,
   });
 }
