@@ -15,23 +15,14 @@ class CreateAccountResponse {
   }
 }
 
-class CheckoutSessionResponse {
-  late Map<String, dynamic> session;
-
-  CheckoutSessionResponse(Map<String, dynamic> session) {
-    this.session = session;
-  }
-}
-
 class StripeBackendService {
   final User? user = FirebaseAuth.instance.currentUser;
+  static Map<String, String> headers = {'Content-Type': 'application/json'};
   static const String BACKEND_HOST = 'http://localhost:3000';
   static String apiBase = '$BACKEND_HOST/api/stripe';
+
   static String createAccountUrl =
       '${StripeBackendService.apiBase}/account?mobile=true';
-  static String checkoutSessionUrl =
-      '${StripeBackendService.apiBase}/checkout-session?mobile=true';
-  static Map<String, String> headers = {'Content-Type': 'application/json'};
 
   static Future<CreateAccountResponse> createSellerAccount() async {
     var url = Uri.parse(StripeBackendService.createAccountUrl);

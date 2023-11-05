@@ -1,11 +1,10 @@
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class ProductViewARPage extends StatefulWidget {
   final String product3DImage;
 
-  ProductViewARPage({super.key, required this.product3DImage});
+  const ProductViewARPage({super.key, required this.product3DImage});
 
   @override
   State<ProductViewARPage> createState() => _ProductViewARPageState();
@@ -21,8 +20,10 @@ class _ProductViewARPageState extends State<ProductViewARPage> {
         src: widget.product3DImage.toString(),
         alt: 'A 3d model testing',
         ar: true,
+        loading: Loading.auto,
+        reveal: Reveal.auto,
         autoRotate: true,
-        disableZoom: true,
+        disableZoom: false,
       ),
     );
   }

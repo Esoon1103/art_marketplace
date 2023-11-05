@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/product_model.dart';
+import '../../widgets/user/loading_indicator_design.dart';
 import '../../widgets/user/search_card.dart';
 
 class Search extends StatefulWidget {
@@ -18,11 +19,12 @@ class _SearchState extends State<Search> {
   bool filterHighSelection = false;
   bool filterLowSelection = false;
   String productType = "default";
+  int productCount = 0;
+  int total = 0;
 
   @override
   void initState() {
-    searchText = widget.searchQuery.toString();
-    print(searchText);
+    searchText = widget.searchQuery.text.toString();
     super.initState();
   }
 
@@ -46,7 +48,7 @@ class _SearchState extends State<Search> {
   }
 
   bool _containsAnyWord(String text, List<String> words) {
-    return words.any((word) => text.contains(word));
+    return words.any((word) => text.trim().contains(word.trim()));
   }
 
   @override
@@ -58,14 +60,15 @@ class _SearchState extends State<Search> {
       },
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.lightBlue[900],
           titleSpacing: 00.0,
           centerTitle: true,
           toolbarHeight: 60.2,
           toolbarOpacity: 0.8,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(25),
-                bottomLeft: Radius.circular(25)),
+                bottomRight: Radius.circular(20),
+                bottomLeft: Radius.circular(20)),
           ),
           elevation: 0.00,
           title: const Text('Search Result'),
@@ -129,7 +132,7 @@ class _SearchState extends State<Search> {
                                       style: ButtonStyle(
                                         backgroundColor:
                                             MaterialStateProperty.all<Color>(
-                                                Colors.orangeAccent),
+                                                Colors.lightBlue[900]!),
                                         padding: MaterialStateProperty.all<
                                                 EdgeInsetsGeometry>(
                                             EdgeInsets.zero),
@@ -280,87 +283,84 @@ class _SearchState extends State<Search> {
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
                   ),
-                  child: Container(
-                    color: Colors.white,
-                    child: Column(
-                      children: [
-                        FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                          future: getSearchProducts(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
-                                  snapshot) {
-                            if (snapshot.hasError) {
-                              print(snapshot.error);
-                              return Text('Error: ${snapshot.error}');
+                  child: Column(
+                    children: [
+                      FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                        future: getSearchProducts(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
+                                snapshot) {
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const LoadingIndicatorDesign();
+                          }
+
+                          final List<DocumentSnapshot<Map<String, dynamic>>>
+                              productDoc = snapshot.data!.docs;
+
+                          List<ProductModel> products = [
+                            for (var product in productDoc)
+                              ProductModel(
+                                  name: product["Name"],
+                                  description: product["Desc"],
+                                  location: product["Location"],
+                                  price: product["Price"],
+                                  uid: product["UID"],
+                                  image: product["Image"],
+                                  image3D: product["3D Image"],
+                                  category: product["Category"],
+                                  inventory: product["Inventory"],
+                                  productID: product["ProductID"]),
+                          ];
+
+                          List<SearchCard> matchingProducts = [];
+
+                          //Going through the products one by one and find the
+                          //matched products with the search query
+                          //If found, add into the matchingProducts list.
+                          for (int index = 0; index < products.length; index++) {
+                            List<String> words = searchText
+                                .trim()
+                                .toLowerCase()
+                                .split(' ')
+                                .map((word) => word.trim())
+                                .toList();
+
+                            // If product is found within the search query
+                            if (_containsAnyWord(
+                                products[index].name.toLowerCase(), words) ||
+                                _containsAnyWord(
+                                    products[index].description.toLowerCase(), words) ||
+                                _containsAnyWord(
+                                    products[index].location.toLowerCase(), words) ||
+                                _containsAnyWord(
+                                    products[index].category.toLowerCase(), words)) {
+                              matchingProducts.add(SearchCard(
+                                productModel: products[index],
+                              ));
                             }
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            }
+                          }
 
-                            final List<DocumentSnapshot<Map<String, dynamic>>>
-                                productDoc = snapshot.data!.docs;
-
-                            List<ProductModel> products = [
-                              for (var product in productDoc)
-                                ProductModel(
-                                    name: product["Name"],
-                                    description: product["Desc"],
-                                    location: product["Location"],
-                                    price: product["Price"],
-                                    uid: product["UID"],
-                                    image: product["Image"],
-                                    image3D: product["3D Image"],
-                                    category: product["Category"],
-                                    inventory: product["Inventory"],
-                                    productID: product["ProductID"]),
-                            ];
-
-                            return ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: productDoc.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                //If search parameter is nothing or found
-                                if (searchText.isEmpty ||
-                                    _containsAnyWord(
-                                        products[index].name.toLowerCase(),
-                                        searchText.toLowerCase().split(' ')) ||
-                                    _containsAnyWord(
-                                        products[index]
-                                            .description
-                                            .toLowerCase(),
-                                        searchText.toLowerCase().split(' ')) ||
-                                    _containsAnyWord(
-                                        products[index].location.toLowerCase(),
-                                        searchText.toLowerCase().split(' ')) ||
-                                    _containsAnyWord(
-                                        products[index].category.toLowerCase(),
-                                        searchText.toLowerCase().split(' '))) {
-                                  // Display the product
-                                  return SearchCard(
-                                    productModel: products[index],
-                                  );
-                                } else {
-                                  //if parameter did not found anything
-                                  print("Nothing Found");
-                                  if (index == 0) {
-                                    return const Center(
-                                      child: Text(
-                                        'No results found',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
+                          //When the looping ends, determine the size.
+                          //Empty means no matched products
+                          if (matchingProducts.isNotEmpty) {
+                            return Column(
+                              children: matchingProducts,
                             );
-                          },
-                        ),
-                      ],
-                    ),
+                          } else {
+                            return Center(
+                              child: Text(
+                                'No results found for "$searchText"',
+                                style: const TextStyle(fontSize: 14, color: Colors.black45),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],

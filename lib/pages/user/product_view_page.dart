@@ -6,7 +6,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:loading_indicator/loading_indicator.dart';
+import '../../widgets/user/loading_indicator_design.dart';
 
 class ProductViewPage extends StatefulWidget {
   final ProductModel product;
@@ -337,16 +337,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: isLoading
-          ? const Center(
-              child: SizedBox(
-                width: 50,
-                child: LoadingIndicator(
-                  indicatorType: Indicator.ballRotateChase,
-                  colors: [Colors.blueGrey],
-                  strokeWidth: 1,
-                ),
-              ),
-            )
+          ? const LoadingIndicatorDesign()
           : CustomScrollView(slivers: [
               SliverAppBar(
                 iconTheme: const IconThemeData(color: Colors.blue),
@@ -423,7 +414,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                                     ),
                                     widget.product.inventory <= 5
                                         ? Text(
-                                            "\t${(widget.product.inventory).toString()} items remaining",
+                                            "\t${widget.product.inventory} items remaining",
                                             style: const TextStyle(
                                               color: Colors.black,
                                               fontSize: 12,
@@ -434,7 +425,8 @@ class _ProductViewPageState extends State<ProductViewPage> {
                                     const SizedBox(
                                       height: 15,
                                     ),
-                                    GestureDetector(
+                                    widget
+                                        .product.image3D != "" ? GestureDetector(
                                       onTap: () {
                                         Navigator.push(
                                             context,
@@ -469,7 +461,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                                               ])),
                                         ),
                                       ),
-                                    ),
+                                    ) : const SizedBox(),
                                   ],
                                 ),
                               ),

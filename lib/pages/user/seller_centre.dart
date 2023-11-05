@@ -8,9 +8,9 @@ import 'package:art_marketplace/services/stripe_backend_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_indicator/loading_indicator.dart';
-import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../widgets/user/loading_indicator_design.dart';
 
 class SellerCentre extends StatefulWidget {
   const SellerCentre({super.key});
@@ -86,14 +86,7 @@ class _SellerCentreState extends State<SellerCentre> {
       ),
       body: Center(
         child: isLoading
-            ? const SizedBox(
-                width: 50,
-                child: LoadingIndicator(
-                  indicatorType: Indicator.ballRotateChase,
-                  colors: [Colors.blueGrey],
-                  strokeWidth: 1,
-                ),
-              )
+            ? const LoadingIndicatorDesign()
             : Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

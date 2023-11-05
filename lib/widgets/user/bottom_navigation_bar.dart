@@ -43,24 +43,25 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
           },
           items: [
             SalomonBottomBarItem(
-                icon: const Icon(Icons.home),
-                title: const Text("Home"),
-                selectedColor: Colors.purple
+                icon: const Icon(Icons.home, color: Colors.black87,),
+                title: const Text("Home", style: TextStyle(color: Colors.black87),),
+                selectedColor: Colors.lightBlue[900],
+                unselectedColor: Colors.grey,
             ),
             SalomonBottomBarItem(
-                icon: const Icon(Icons.place_outlined),
-                title: const Text("Places"),
-                selectedColor: Colors.pink
+                icon: const Icon(Icons.place_outlined, color: Colors.black87,),
+                title: const Text("Places", style: TextStyle(color: Colors.black87),),
+                selectedColor: Colors.lightBlue[900]
             ),
             SalomonBottomBarItem(
-                icon: const Icon(Icons.shopping_cart),
-                title: const Text("Cart"),
-                selectedColor: Colors.orange
+                icon: const Icon(Icons.shopping_cart, color: Colors.black87,),
+                title: const Text("Cart", style: TextStyle(color: Colors.black87),),
+                selectedColor: Colors.lightBlue[900]
             ),
             SalomonBottomBarItem(
-                icon: const Icon(Icons.person),
-                title: const Text("Profile"),
-                selectedColor: Colors.teal
+                icon: const Icon(Icons.person, color: Colors.black87,),
+                title: const Text("Profile", style: TextStyle(color: Colors.black87),),
+                selectedColor: Colors.lightBlue[900]
             )
           ],
       ),

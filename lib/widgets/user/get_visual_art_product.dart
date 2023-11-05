@@ -4,10 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../model/product_model.dart';
 import '../../pages/user/product_view_page.dart';
+import 'loading_indicator_design.dart';
 
 class GetVisualArtProduct extends StatefulWidget {
   final String productCategory;
@@ -60,14 +60,7 @@ class _GetVisualArtProductState extends State<GetVisualArtProduct> {
         stream: _getVisualArtsProducts(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox(
-              width: 50,
-              child: LoadingIndicator(
-                indicatorType: Indicator.ballRotateChase,
-                colors: [Colors.blueGrey],
-                strokeWidth: 1,
-              ),
-            );
+            return const LoadingIndicatorDesign();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {

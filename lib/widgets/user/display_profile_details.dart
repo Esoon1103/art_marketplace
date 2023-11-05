@@ -32,6 +32,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
 
   void signOut() async {
     await FirebaseAuth.instance.signOut();
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

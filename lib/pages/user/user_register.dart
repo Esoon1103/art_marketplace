@@ -362,13 +362,13 @@ class _UserRegisterState extends State<UserRegister> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
+                const Padding(
+                  padding: EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 10,
                   ),
                   child: Row(
-                    children: const [
+                    children: [
                       Expanded(
                         child: Divider(
                           color: Color(0xFFE8ECF4),
