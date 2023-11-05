@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/admin/seller_list_card.dart';
+import 'admin_home.dart';
 import 'admin_login.dart';
 
 class AdminSellerList extends StatefulWidget {
@@ -42,7 +43,10 @@ class _AdminSellerListState extends State<AdminSellerList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Artsylane Admin'),
+        title: InkWell(
+            onTap: () => Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const AdminHome())),
+            child: const Text('Artsylane Admin')),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),
