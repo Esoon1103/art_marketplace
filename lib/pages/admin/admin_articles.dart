@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'admin_home.dart';
 import 'admin_login.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
@@ -553,7 +554,10 @@ class _AdminArticlesState extends State<AdminArticles> {
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
-        title: const Text('Artsylane Admin'),
+        title: InkWell(
+            onTap: () => Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const AdminHome())),
+            child: const Text('Artsylane Admin')),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),

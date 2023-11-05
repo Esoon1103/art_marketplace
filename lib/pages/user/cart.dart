@@ -49,6 +49,7 @@ class _CartState extends State<Cart> {
 
   Stream _getCartItems() {
     if (user != null) {
+      print(user?.email);
       Stream<QuerySnapshot<Object?>> snapshot = FirebaseFirestore.instance
           .collection('Users')
           .doc(user?.uid.toString())
