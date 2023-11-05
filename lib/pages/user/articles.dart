@@ -1,4 +1,6 @@
 import 'package:art_marketplace/model/article_model.dart';
+import 'package:art_marketplace/widgets/user/articles_card.dart';
+import 'package:art_marketplace/widgets/user/loading_indicator_design.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +38,7 @@ class _ArticlesState extends State<Articles> {
                   stream: _getArticles(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
+                      return const LoadingIndicatorDesign();
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else if (!snapshot.hasData ||
@@ -63,72 +65,7 @@ class _ArticlesState extends State<Articles> {
                         itemCount: articles.length,
                         itemBuilder: (BuildContext context, int index) {
                           // Use the 'products' list to build your UI
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Image.network(
-                                  articles[index].image,
-                                  height: 160,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                                Container(
-                                  padding:
-                                  const EdgeInsets.fromLTRB(15, 15, 15, 0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            articles[index].name,
-                                            style: TextStyle(
-                                              fontSize: 19,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                          Text(
-                                            "Date: ${articles[index].date}",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[800],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        articles[index].location,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
-                                      Container(height: 10),
-                                      Text(
-                                        articles[index].description,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(height: 5),
-                              ],
-                            ),
-                          );
+                          return ArticlesCard(articleModel: articles[index]);
                         },
                       );
                     }

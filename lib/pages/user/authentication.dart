@@ -1,16 +1,19 @@
 import 'package:art_marketplace/pages/user/user_login.dart';
+import 'package:art_marketplace/widgets/user/loading_indicator_design.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:art_marketplace/widgets/user/bottom_navigation_bar.dart'
     as user_bottom_navigation_bar;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure that Flutter is initialized
   await Firebase.initializeApp();
-  Stripe.publishableKey = "pk_test_51O7JIUFC8KYffCidIm9Zih9sGQkyTCWPhnLgmBpy4OTYgIaygLtaLxWeBU7hlH2ogEWBNdc1m1t3eHlTCL6er5M300CKTMIaSi";
+  await dotenv.load(fileName: ".env");
+  Stripe.publishableKey = dotenv.env["PUBLISHABLE_KEY"]!;
   runApp(const MaterialApp(
     home: AuthPage(),
     debugShowCheckedModeBanner: false,
@@ -43,7 +46,7 @@ class _AuthPageState extends State<AuthPage> {
             );
           } else {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: LoadingIndicatorDesign(),
             );
           }
         },

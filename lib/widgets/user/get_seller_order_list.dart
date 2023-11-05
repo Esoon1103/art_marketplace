@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 
 import '../../model/order_model.dart';
 import '../../model/product_model.dart';
 import '../../model/user_model.dart';
+import 'loading_indicator_design.dart';
 
 class GetSellerOrderList extends StatefulWidget {
   final String orderStatus;
@@ -161,14 +161,7 @@ class _GetSellerOrderListState extends State<GetSellerOrderList> {
         stream: fetchOrdersForCurrentUser(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox(
-              width: 50,
-              child: LoadingIndicator(
-                indicatorType: Indicator.ballRotateChase,
-                colors: [Colors.blueGrey],
-                strokeWidth: 1,
-              ),
-            );
+            return const LoadingIndicatorDesign();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {

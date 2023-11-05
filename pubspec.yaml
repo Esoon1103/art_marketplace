@@ -37,6 +37,12 @@ dependencies:
   flutter_stripe: ^9.5.0+1
   uni_links: ^0.5.1
   quickalert: ^1.0.2
+  pdf: ^3.10.4
+  mailer: ^6.0.1
+  path_provider: ^2.1.1
+  google_sign_in: ^6.1.5
+  dart_mailgun: ^1.0.3
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -55,4 +61,5 @@ flutter:
     - assets/images/artsylane_logo_full.png
     - assets/images/artsylane_logo2.png
     - assets/images/ar_logo.png
+    - .env
 

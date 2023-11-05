@@ -12,7 +12,20 @@
           "package_name": "com.example.art_marketplace"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "802352147965-ilsmun1o94buh1vnvm08mr9teev8n96f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.art_marketplace",
+            "certificate_hash": "3f57f3edc9798f07f408dc688bcfa16c139d8e36"
+          }
+        },
+        {
+          "client_id": "802352147965-gi5719qto3nkmtkdbmd43ltbgqal3n77.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDGrhuHtPXRQN6MhR-gKggJkAu_IWCz4Ig"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802352147965-gi5719qto3nkmtkdbmd43ltbgqal3n77.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "802352147965-4vumb26grr4pmtc76gk2ngf1m16bk27e.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.artMarketplace"
+              }
+            }
+          ]
         }
       }
     }

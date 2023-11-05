@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import '../../model/product_model.dart';
+import '../../widgets/user/loading_indicator_design.dart';
 import '../../widgets/user/recently_viewed_card.dart';
 
 class RecentlyViewed extends StatefulWidget {
@@ -69,14 +69,7 @@ class _RecentlyViewedState extends State<RecentlyViewed> {
         future: getRecentlyViewedProducts(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox(
-              width: 50,
-              child: LoadingIndicator(
-                indicatorType: Indicator.ballRotateChase,
-                colors: [Colors.blueGrey],
-                strokeWidth: 1,
-              ),
-            );
+            return const LoadingIndicatorDesign();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

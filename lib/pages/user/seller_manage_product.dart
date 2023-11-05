@@ -9,6 +9,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 
+import '../../widgets/user/loading_indicator_design.dart';
+
 class SellerManageProduct extends StatefulWidget {
   const SellerManageProduct({super.key});
 
@@ -478,11 +480,11 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.arrow_upward),
+                                  icon: const Icon(Icons.arrow_upward),
                                   onPressed: _increment,
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.arrow_downward),
+                                  icon: const Icon(Icons.arrow_downward),
                                   onPressed: _decrement,
                                 ),
                               ],
@@ -536,7 +538,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       ),
                     ]),
                   ),
-                  SizedBox(height: 30,),
+                  const SizedBox(height: 30,),
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: Row(children: [
@@ -807,11 +809,11 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  icon: Icon(Icons.arrow_upward),
+                                  icon: const Icon(Icons.arrow_upward),
                                   onPressed: _increment,
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.arrow_downward),
+                                  icon: const Icon(Icons.arrow_downward),
                                   onPressed: _decrement,
                                 ),
                               ],
@@ -839,9 +841,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                             selectImage();
                           },
                           icon: const Icon(Icons.upload_outlined),
-                          label: file?.name == null
+                          label: imageFile == ""
                               ? const Text('Select')
-                              : Text(file!.name),
+                              : Text(imageFile),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blue,
                             backgroundColor: Colors.grey[200],
@@ -873,9 +875,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                             select3DImage();
                           },
                           icon: const Icon(Icons.upload_outlined),
-                          label: file3D?.name == null
+                          label: image3DFile == ""
                               ? const Text('Select')
-                              : Text(file3D!.name),
+                              : Text(image3DFile),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.blue,
                             backgroundColor: Colors.grey[200],
@@ -965,7 +967,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                   stream: _getSellerProducts(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
+                      return const LoadingIndicatorDesign();
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else if (!snapshot.hasData ||
@@ -1106,7 +1108,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       );
                     }
                   }),
-              SizedBox(
+              const SizedBox(
                 height: 75,
               )
             ],
