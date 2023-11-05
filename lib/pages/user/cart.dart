@@ -415,7 +415,7 @@ class _CartState extends State<Cart> {
     final smtpServer = gmail(email, password);
     final message = mailer.Message()
       ..from = mailer.Address(email, 'Artsylane')
-      ..recipients.add('p20012522@student.newinti.edu.my')
+      ..recipients.add(user?.email)
       ..subject = 'Order Confirmation - Invoice Attached (ID: $invoiceId)'
       ..text =
           'Dear $username,\n\nThank you for your recent purchase with Artsylane. '
