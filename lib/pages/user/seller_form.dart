@@ -7,6 +7,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'dart:io';
+import 'package:art_marketplace/widgets/user/bottom_navigation_bar.dart'
+as user_bottom_navigation_bar;
 
 class SellerForm extends StatefulWidget {
   const SellerForm({super.key});
@@ -219,6 +221,9 @@ class _SellerFormState extends State<SellerForm> {
                           leftBarIndicatorColor: Colors.blue[300],
                           message: "Form Submitted",
                         ).show(context);
+
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const user_bottom_navigation_bar.BottomNavigationBar(
+                            pageNum: 3)));
                       }
                     },
                     child: const Text('Submit'),

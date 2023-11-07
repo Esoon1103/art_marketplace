@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:art_marketplace/pages/user/recently_viewed.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,9 +25,9 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
   bool isLoading = true;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController updateUsernameController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController currentPasswordController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
 
@@ -55,7 +56,6 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
     addressController.clear();
     super.dispose();
   }
-
 
   void updateUsername() async {
     showDialog<String>(
@@ -108,43 +108,6 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
     );
   }
 
-  void terminateAccount() async {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Warning'),
-        content: const Text(
-          "Are you sure to terminate your account?",
-          style: TextStyle(
-            fontSize: 15,
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'Cancel'),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              try {
-                await FirebaseFirestore.instance
-                    .collection("Users")
-                    .doc(user?.uid.toString())
-                    .delete();
-                await user?.delete();
-
-                Navigator.pop(context, 'OK');
-              } catch (e) {
-                print('Error deleting user: $e');
-              }
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
   updatePassword() async {
     showDialog<String>(
       context: context,
@@ -165,7 +128,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                       return null;
                     },
                     decoration:
-                    const InputDecoration(labelText: "Current Password"),
+                        const InputDecoration(labelText: "Current Password"),
                     obscuringCharacter: '*',
                     obscureText: true,
                   ),
@@ -182,7 +145,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                     obscuringCharacter: '*',
                     obscureText: true,
                     decoration:
-                    const InputDecoration(labelText: "New Password"),
+                        const InputDecoration(labelText: "New Password"),
                   ),
                 ],
               ),
@@ -197,13 +160,13 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                       if (_formKey.currentState!.validate()) {
                         if (FirebaseAuth.instance.currentUser != null) {
                           final DocumentSnapshot<Map<String, dynamic>>
-                          currentUserData = await FirebaseFirestore.instance
-                              .collection("Users")
-                              .doc(user?.uid.toString())
-                              .get();
+                              currentUserData = await FirebaseFirestore.instance
+                                  .collection("Users")
+                                  .doc(user?.uid.toString())
+                                  .get();
 
                           String currentEmail =
-                          currentUserData.data()!["Email"];
+                              currentUserData.data()!["Email"];
                           // Validate the current password before proceeding
                           var credential = EmailAuthProvider.credential(
                             email: currentEmail.toString(),
@@ -230,7 +193,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content:
-                                    Text("Incorrect Current Password!")));
+                                        Text("Incorrect Current Password!")));
                           }
                         }
                       }
@@ -251,61 +214,65 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
   updateAddress() async {
     await getAddress();
 
-    !isLoading ? showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => Form(
-        key: _formKey,
-        child: AlertDialog(
-          title: const Text('Address'),
-          content: TextFormField(
-            controller: addressController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please confirm your address';
-              } else if (value.length < 15) {
-                return 'Make sure you type full address';
-              }
-              return null;
-            },
-            decoration: const InputDecoration(labelText: "Edit Address"),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'Cancel'),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  try {
-                    if (addressController.text == "") {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Address cannot be empty!")));
-                    } else {
-                      await FirebaseFirestore.instance
-                          .collection("Users")
-                          .doc(user?.uid.toString())
-                          .set({"Address": addressController.text.toString()},
-                          SetOptions(merge: true)).then((addressValue){
-                        setState(() {
-                          address = addressController.text.toString();
-                          isLoading = false;
-                        });
-                      });
-
-                      Navigator.pop(context, 'OK');
+    !isLoading
+        ? showDialog<String>(
+            context: context,
+            builder: (BuildContext context) => Form(
+              key: _formKey,
+              child: AlertDialog(
+                title: const Text('Address'),
+                content: TextFormField(
+                  controller: addressController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your address';
+                    } else if (value.length < 15) {
+                      return 'Make sure you type full address';
                     }
-                  } catch (e) {
-                    print('Error updating address: $e');
-                  }
-                }
-              },
-              child: const Text('OK'),
+                    return null;
+                  },
+                  decoration: const InputDecoration(labelText: "Edit Address"),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'Cancel'),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        try {
+                          if (addressController.text == "") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Address cannot be empty!")));
+                          } else {
+                            await FirebaseFirestore.instance
+                                .collection("Users")
+                                .doc(user?.uid.toString())
+                                .set({
+                              "Address": addressController.text.toString()
+                            }, SetOptions(merge: true)).then((addressValue) {
+                              setState(() {
+                                address = addressController.text.toString();
+                                isLoading = false;
+                              });
+                            });
+
+                            Navigator.pop(context, 'OK');
+                          }
+                        } catch (e) {
+                          print('Error updating address: $e');
+                        }
+                      }
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
-    ) : const SizedBox();
+          )
+        : const SizedBox();
   }
 
   getAddress() async {
@@ -314,11 +281,10 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
     });
 
     final DocumentSnapshot<Map<String, dynamic>> getAddress =
-    await FirebaseFirestore.instance
-        .collection("Users")
-        .doc(user?.uid.toString())
-        .get();
-
+        await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(user?.uid.toString())
+            .get();
 
     setState(() {
       address = getAddress.data()?["Address"] ?? "";
@@ -333,7 +299,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
     String? encodeQueryParameters(Map<String, String> params) {
       return params.entries
           .map((MapEntry<String, String> e) =>
-      '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
           .join('&');
     }
 
@@ -347,12 +313,11 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
       }),
     );
 
-    if(await canLaunchUrl(emailUri)){
+    if (await canLaunchUrl(emailUri)) {
       launchUrl(emailUri);
-    }else{
+    } else {
       throw Exception("Could not launch $emailUri");
     }
-
   }
 
   @override
@@ -384,7 +349,9 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
               SettingsTile.navigation(
                 leading: const Icon(Icons.house_outlined),
                 title: const Text('Address'),
-                value: isLoading? const Text("") : Text(address == ""? "No Address Provided" : address!),
+                value: isLoading
+                    ? const Text("")
+                    : Text(address == "" ? "No Address Provided" : address!),
                 trailing: IconButton(
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () {
@@ -408,13 +375,6 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                   });
                 },
               ),
-              SettingsTile.navigation(
-                leading: const Icon(Icons.delete_outline_outlined),
-                title: const Text('Terminate Account'),
-                onPressed: (context) {
-                  terminateAccount();
-                },
-              ),
             ],
           ),
           SettingsSection(
@@ -427,8 +387,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                          const SellerCentre()));
+                          builder: (context) => const SellerCentre()));
                 },
               ),
               SettingsTile.navigation(
@@ -448,8 +407,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                          const RecentlyViewed()));
+                          builder: (context) => const RecentlyViewed()));
                 },
               ),
               SettingsTile(
