@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class ProductViewARPage extends StatefulWidget {
   final String product3DImage;
+  final String productName;
 
-  const ProductViewARPage({super.key, required this.product3DImage});
+  const ProductViewARPage({super.key, required this.product3DImage, required this.productName});
 
   @override
   State<ProductViewARPage> createState() => _ProductViewARPageState();
@@ -18,10 +19,9 @@ class _ProductViewARPageState extends State<ProductViewARPage> {
       body:  ModelViewer(
         backgroundColor: const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
         src: widget.product3DImage.toString(),
-        alt: 'A 3d model testing',
+        alt: 'A 3d model of ${widget.productName}',
         ar: true,
-        loading: Loading.auto,
-        reveal: Reveal.auto,
+        cameraControls: true,
         autoRotate: true,
         disableZoom: false,
       ),

@@ -434,7 +434,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                                                 builder: (context) =>
                                                     ProductViewARPage(
                                                         product3DImage: widget
-                                                            .product.image3D)));
+                                                            .product.image3D, productName: widget.product.name)));
                                       },
                                       child: SizedBox(
                                         height: 30,
