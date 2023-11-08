@@ -80,7 +80,7 @@ class _CartState extends State<Cart> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Address  cannot be empty!';
-                      } else if (addressValue.length <= 15) {
+                      } else if (addressController.text.length <= 15) {
                         return "Please make sure your address is detailed!";
                       }
                       return null;

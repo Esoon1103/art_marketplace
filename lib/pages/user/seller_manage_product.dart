@@ -261,6 +261,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
           .doc(productID)
           .delete();
       print("Delete the product from product collection");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Delete the product from product collection')),
+      );
     } else {
       // There are orders, update the product's inventory to 0
       await FirebaseFirestore.instance
@@ -268,6 +271,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
           .doc(productID)
           .update({'Inventory': 0});
       print("Update the product inventory to 0 from product collection");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You cannot delete this product because there are orders on this product. Updating the product inventory to 0 from product collection.')),
+      );
     }
   }
 
@@ -630,6 +636,14 @@ class _SellerManageProductState extends State<SellerManageProduct> {
   }
 
   addProductDialog() async {
+    productNameController.text = "";
+    productDescController.text = "";
+    productPriceController.text = "";
+    productLocationController.text = "";
+    inventoryController.text = "0";
+    imageFile = "";
+    image3DFile = "";
+
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => Form(
@@ -837,8 +851,16 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                       ),
                       Expanded(
                         child: TextButton.icon(
-                          onPressed: () {
-                            selectImage();
+                          onPressed: () async {
+                            await selectImage();
+
+                            if (upload == true) {
+                              setState(() {
+                                imageFile;
+                              });
+                            } else {
+                              upload == false;
+                            }
                           },
                           icon: const Icon(Icons.upload_outlined),
                           label: imageFile == ""

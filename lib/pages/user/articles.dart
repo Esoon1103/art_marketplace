@@ -34,6 +34,7 @@ class _ArticlesState extends State<Articles> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
+              const SizedBox(height: 55,),
               StreamBuilder(
                   stream: _getArticles(),
                   builder: (context, snapshot) {

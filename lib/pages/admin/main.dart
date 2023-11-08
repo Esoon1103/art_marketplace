@@ -33,26 +33,25 @@ class _AuthPageState extends State<AuthPage> {
     super.initState();
   }
 
-  checkAdminStatus() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    DocumentSnapshot<Map<String, dynamic>> userSnapshot =
-        await FirebaseFirestore.instance
-            .collection('Users')
-            .doc(user?.uid.toString())
-            .get();
+  checkAdminStatus(User? user) async {
+    if (user != null) {
+      DocumentSnapshot<Map<String, dynamic>> userSnapshot =
+      await FirebaseFirestore.instance.collection('Users').doc(user.uid).get();
 
-    if (userSnapshot.exists) {
-      bool isAdmin = userSnapshot['isAdmin'] ?? false;
+      if (userSnapshot.exists) {
+        bool isAdmin = userSnapshot['isAdmin'] ?? false;
 
-      if (isAdmin) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
-          return const AdminHome();
-        }));
-      }else{
-        showNotAdminPrompt();
+        if (isAdmin) {
+          showNotAdminPrompt();
+        } else {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+            return const AdminHome();
+          }));
+        }
       }
     }
   }
+
 
   void showNotAdminPrompt() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +69,7 @@ class _AuthPageState extends State<AuthPage> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            checkAdminStatus();
+            checkAdminStatus(snapshot.data);
             return const AdminLogin();
           } else if (snapshot.data == null) {
             return const AdminLogin();

@@ -44,6 +44,10 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
 
   @override
   void initState() {
+    if(user != null){
+      updateUsernameController.text = displayName!;
+    }
+
     getAddress();
     super.initState();
   }
