@@ -23,6 +23,7 @@ class _UserRegisterState extends State<UserRegister> {
   final confirmPasswordController = TextEditingController();
   final usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  int expectedLength = 10;
 
   @override
   void dispose(){
@@ -32,6 +33,11 @@ class _UserRegisterState extends State<UserRegister> {
     usernameController.dispose();
     phoneNumberController.dispose();
     super.dispose();
+  }
+
+  bool isValidPhoneNumberLength(String phoneNumber, int expectedLength) {
+    // Check if the phone number has the expected length
+    return phoneNumber.startsWith('0') && phoneNumber.length == expectedLength;
   }
 
   void signUp() async{
@@ -231,9 +237,12 @@ class _UserRegisterState extends State<UserRegister> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter phone number';
+                          }else if (!isValidPhoneNumberLength(value, expectedLength)) {
+                            return 'Invalid phone number';
                           }
                           return null;
                         },
+                        keyboardType: TextInputType.phone,
                         controller: phoneNumberController,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
