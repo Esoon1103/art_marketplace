@@ -44,10 +44,6 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
 
   @override
   void initState() {
-    if(user != null){
-      updateUsernameController.text = displayName!;
-    }
-
     getAddress();
     super.initState();
   }
@@ -62,6 +58,11 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
   }
 
   void updateUsername() async {
+    if(user != null){
+      updateUsernameController.text = displayName!;
+    }
+
+
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -309,7 +310,7 @@ class _DisplayProfileDetailsState extends State<DisplayProfileDetails> {
 
     final Uri emailUri = Uri(
       scheme: 'mailto',
-      path: 'ngesoon123@gmail.com',
+      path: 'p20012522@student.newinti.edu.my',
       query: encodeQueryParameters(<String, String>{
         'subject': "Contact Enquiry from Artsylane",
         'body': "Dear artsylane administrator,  This is the message from "

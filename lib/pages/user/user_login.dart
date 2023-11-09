@@ -40,7 +40,7 @@ class _UserLoginState extends State<UserLogin> {
           builder: (context) {
             return const AlertDialog(
               backgroundColor: Colors.pinkAccent,
-              title: Text('Incorrect Email'),
+              title: Text('User not found. Verify your credentials and try again.'),
             );
           },
         );
@@ -50,7 +50,7 @@ class _UserLoginState extends State<UserLogin> {
           builder: (context) {
             return const AlertDialog(
               backgroundColor: Colors.pinkAccent,
-              title: Text('Incorrect Password'),
+              title: Text('Email or password is incorrect. Please double-check and try again.'),
             );
           },
         );

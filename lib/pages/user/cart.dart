@@ -47,6 +47,25 @@ class _CartState extends State<Cart> {
     super.dispose();
   }
 
+  @override
+  initState(){
+    getAddress();
+    super.initState();
+  }
+
+  getAddress() async {
+    final DocumentSnapshot<Map<String, dynamic>> getAddress =
+    await FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user?.uid.toString())
+        .get();
+
+    setState(() {
+      address = getAddress.data()?["Address"] ?? "";
+      addressController.text = address!;
+    });
+  }
+
   Stream _getCartItems() {
     if (user != null) {
       print(user?.email);
@@ -63,14 +82,17 @@ class _CartState extends State<Cart> {
   }
 
   showAddressDialog(String? address, double totalPrice) async {
-    addressController.text = address!;
+    await getAddress();
+    if(user != null){
+      addressController.text = address!;
+    }
     showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return Form(
           key: _formKey,
           child: AlertDialog(
-            title: address == ""
+            title: address == "" || address == null
                 ? const Text('Please Update your Address')
                 : const Text('Confirm your Address'),
             content: SingleChildScrollView(
@@ -116,9 +138,8 @@ class _CartState extends State<Cart> {
                     await FirebaseFirestore.instance
                         .collection("Users")
                         .doc(user?.uid.toString())
-                        .update({"Address": addressValue});
+                        .update({"Address": addressController.text.toString()});
                     payment(totalPrice, cart);
-                    addressController.clear();
                     Navigator.of(context).pop();
                   }
                 },
@@ -139,7 +160,7 @@ class _CartState extends State<Cart> {
               .get();
 
       if (addressData.exists) {
-        final address = addressData.data()?["Address"] ?? "";
+        final address = addressData.data()?["Address"];
 
         showAddressDialog(address, totalPrice);
         print("User address: $address");

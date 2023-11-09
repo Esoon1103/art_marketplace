@@ -158,6 +158,9 @@ class _AdminArticlesState extends State<AdminArticles> {
               child: const Text('DELETE'),
               onPressed: () async {
                 await deleteArticle(article.articleID);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Article Deleted')),
+                );
                 Navigator.of(context).pop();
               },
             ),
@@ -371,6 +374,9 @@ class _AdminArticlesState extends State<AdminArticles> {
   }
 
   addArticleDialog() async {
+    articleNameController.text  = "";
+    articleDescController.text  = "";
+    articleLocationController.text  = "";
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => Form(

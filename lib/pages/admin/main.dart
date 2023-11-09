@@ -50,6 +50,7 @@ class _AuthPageState extends State<AuthPage> {
         }));
       }else{
         showNotAdminPrompt();
+        await FirebaseAuth.instance.signOut();
       }
     }
   }

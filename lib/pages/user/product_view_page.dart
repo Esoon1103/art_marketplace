@@ -34,6 +34,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
   @override
   void initState() {
     super.initState();
+    print("Product Name Fetched: ${widget.product.name}");
     getSellerName();
     getInventory();
     getCartQuantity();
