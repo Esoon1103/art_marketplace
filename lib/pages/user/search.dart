@@ -34,15 +34,19 @@ class _SearchState extends State<Search> {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getSearchProducts() async {
-    if (!filterLowSelection) {
+    if (filterLowSelection) {
       return FirebaseFirestore.instance
           .collection('Product')
           .orderBy('Price')
           .get();
-    } else {
+    } else if(filterHighSelection) {
       return FirebaseFirestore.instance
           .collection('Product')
           .orderBy('Price', descending: true)
+          .get();
+    }else{
+      return FirebaseFirestore.instance
+          .collection('Product')
           .get();
     }
   }
@@ -244,28 +248,6 @@ class _SearchState extends State<Search> {
                                     },
                                     child:
                                         const Text("Price: Lowest to Highest"),
-                                  ),
-                                if (productType == "Rent")
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        productType = "default";
-                                        setState(() {});
-                                      },
-                                      child: const Text("Type: Rent"),
-                                    ),
-                                  ),
-                                if (productType == "Sell")
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: OutlinedButton(
-                                      onPressed: () {
-                                        productType = "default";
-                                        setState(() {});
-                                      },
-                                      child: const Text("Type: Sell"),
-                                    ),
                                   ),
                               ],
                             )

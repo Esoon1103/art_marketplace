@@ -80,6 +80,7 @@ class _GetVisualArtProductState extends State<GetVisualArtProduct> {
                     inventory: product["Inventory"],
                     productID: product["ProductID"]),
             ];
+            print("object");
             return MasonryGridView.builder(
               padding: const EdgeInsets.all(0.1),
               mainAxisSpacing: 1.0,

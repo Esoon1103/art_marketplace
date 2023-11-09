@@ -182,7 +182,7 @@ class _GetOrderListState extends State<GetOrderList> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'RM${(double.parse(productModel.price) * int.parse(orders.quantity)).toStringAsFixed(2)}',
+                        'RM${(productModel.price * int.parse(orders.quantity)).toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
@@ -207,7 +207,7 @@ class _GetOrderListState extends State<GetOrderList> {
                           style: DefaultTextStyle.of(context).style,
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'RM${(double.parse(productModel.price) * int.parse(orders.quantity)).toStringAsFixed(2)}',
+                              text: 'RM${(productModel.price * int.parse(orders.quantity)).toStringAsFixed(2)}',
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
