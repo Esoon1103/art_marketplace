@@ -224,7 +224,7 @@ class _CartState extends State<Cart> {
           .get();
 
       int quantity = int.parse(cart[i].quantity);
-      double price = double.parse(product.data()?["Price"]);
+      double price = product.data()?["Price"];
 
       totalPrice += quantity * price;
       print(totalPrice);
@@ -315,7 +315,7 @@ class _CartState extends State<Cart> {
         ProductModel orderedProduct = ProductModel(
           name: productData.data()?["Name"],
           description: productData.data()?["Desc"],
-          price: (productData.data()?["Price"]).toString(),
+          price: productData.data()?["Price"],
           location: productData.data()?["Location"],
           uid: productData.data()?["UID"],
           image: productData.data()?["Image"],
@@ -338,7 +338,7 @@ class _CartState extends State<Cart> {
         invoiceOrders.add(orderModel);
 
         // Calculate the total price for each product based on its quantity
-        double productPrice = double.parse(productData.data()!["Price"].toString());
+        double productPrice = productData.data()!["Price"];
         int quantity = int.parse(orderData.data()?["Quantity"]);
         double productTotalPrice = productPrice * quantity;
 
@@ -395,7 +395,7 @@ class _CartState extends State<Cart> {
                       product.description,
                       product.price.toString(),
                       order.quantity.toString(),
-                      (double.parse(order.quantity) * double.parse(product.price)).toString(),
+                      (double.parse(order.quantity) * product.price).toString(),
                     ],
               // Add other information as needed
             ],

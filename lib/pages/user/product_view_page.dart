@@ -467,7 +467,7 @@ class _ProductViewPageState extends State<ProductViewPage> {
                                 ),
                               ),
                               Text(
-                                "RM ${widget.product.price}.00",
+                                "RM ${widget.product.price}",
                                 style: const TextStyle(
                                     color: Colors.black, fontSize: 16),
                               ),

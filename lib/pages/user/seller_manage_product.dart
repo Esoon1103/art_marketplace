@@ -189,7 +189,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
       "3D Image": url3dDownload,
       "Name": productNameController.text.toString(),
       "Desc": productDescController.text.toString(),
-      "Price": productPriceController.text.toString(),
+      "Price": double.parse(productPriceController.text),
       "Location": productLocationController.text.toString(),
       "Inventory": int.parse(inventoryController.text),
       "Category": productCategory.toString(),
@@ -286,7 +286,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
       "3D Image": url3dDownload,
       "Name": productNameController.text.toString(),
       "Desc": productDescController.text.toString(),
-      "Price": productPriceController.text.toString(),
+      "Price": double.parse(productPriceController.text),
       "Location": productLocationController.text.toString(),
       "Inventory": int.parse(inventoryController.text),
       "Category": productCategory.toString(),
@@ -297,7 +297,7 @@ class _SellerManageProductState extends State<SellerManageProduct> {
     String productIDNew = product.productID;
     productNameController.text = product.name;
     productDescController.text = product.description;
-    productPriceController.text = product.price;
+    productPriceController.text = product.price.toString();
     productLocationController.text = product.location;
     inventoryController.text = product.inventory.toString();
     productCategory = product.category;
@@ -360,9 +360,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                     },
                   ),
                   TextFormField(
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                     ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -697,9 +697,9 @@ class _SellerManageProductState extends State<SellerManageProduct> {
                     },
                   ),
                   TextFormField(
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                     ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
